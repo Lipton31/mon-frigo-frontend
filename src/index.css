@@ -1,0 +1,20 @@
+    /* Importe les styles de base de Tailwind CSS */
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    /* Styles globaux pour le corps de l'application */
+    body {
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Vous pouvez ajouter des styles personnalisés ici si nécessaire */
+    /* Par exemple, pour les éléments générés par l'IA avec la classe 'prose' */
+    .prose {
+      /* Ces styles seront appliqués plus tard avec le plugin @tailwindcss/typography */
+    }
+    
