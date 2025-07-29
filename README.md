@@ -1,12 +1,31 @@
-# React + Vite
+# Mon Frigo Malin - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Ce projet est le frontend de l'application "Mon Frigo Malin", construit avec React et Vite.
 
-Currently, two official plugins are available:
+Il fournit une interface utilisateur pour :
+* Analyser les photos de votre frigo afin de détecter les ingrédients.
+* Générer des recettes personnalisées basées sur les ingrédients détectés.
+* Adapter les recettes (portions, préférences, substitutions).
+* Gérer les recettes favorites et l'historique de génération.
+* Suivre votre défi cuisine.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Utilisées
 
-## Expanding the ESLint configuration
+* **React** : Bibliothèque JavaScript pour la construction d'interfaces utilisateur.
+* **Vite** : Outil de build rapide pour les projets web modernes.
+* **Tailwind CSS** : Framework CSS pour un stylisme rapide et responsive.
+* **Lucide React** : Bibliothèque d'icônes.
+* **Firebase** : Pour la gestion des données utilisateur (favoris, historique, préférences, défi cuisine).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Démarrage du projet
+
+### Prérequis
+
+Assurez-vous d'avoir Node.js et npm (ou yarn) installés.
+
+### Installation des dépendances
+
+Dans le dossier `mon-frigo-frontend`, exécutez :
+
+```bash
+npm install
