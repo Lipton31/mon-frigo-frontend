@@ -3,17 +3,19 @@ import {
   Camera, Utensils, Sun, Heart, Settings, Flame, Eye, Info, X, ChevronDown, CheckCircle,
   BookOpenText, CalendarOff, Clipboard, Loader2, Lightbulb, Salad, Apple, FlaskConical,
   ChefHat, Search, Eraser, PlusCircle, Package, Clock, TrendingUp, TrendingDown, History,
-  Sparkles, User, Plus // Nouvelle icône pour le bouton central
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion'; // Import de Framer Motion
+  Sparkles, User // Icônes
+} from 'lucide-react'; // Import d'icônes enrichi
+
+// Framer Motion pour des animations fluides
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Firebase Imports
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, addDoc, getDocs } from 'firebase/firestore';
 
-// Global variables provided by the Canvas environment (keep for local testing in Canvas)
-// These variables are MANDATORY for Firebase integration in Canvas.
+// Global variables provided by the Canvas environment
+// These variables are MANDATORY for Firebase integration
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
@@ -44,101 +46,28 @@ let db;
 let auth;
 
 try {
-  // Check if Firebase config is actually provided
-  const isFirebaseConfigProvided = Object.values(firebaseConfig).some(value => value !== undefined && value !== null);
-
-  if (isFirebaseConfigProvided && firebaseConfig.apiKey) { // Ensure apiKey is also present
+  if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
   } else {
-    console.warn("Firebase configuration is missing or incomplete. Firebase will not be initialized. Some features may be limited.");
+    console.warn("Firebase configuration is missing or incomplete. Firebase will not be initialized.");
   }
-} catch (e) {
-  console.error("Failed to initialize Firebase:", e);
+} catch (error) {
+  console.error("Error initializing Firebase:", error);
 }
 
+// Fonction utilitaire pour convertir un Blob en Base64
+const blobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
-// --- Custom CSS Animations and Glassmorphism ---
-const customStyles = `
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0px rgba(99, 102, 241, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-  100% { box-shadow: 0 0 0 0px rgba(99, 102, 241, 0); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
-}
-
-.animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-.animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
-.animate-popIn { animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
-.animate-pulse-glow { animation: pulseGlow 1.5s infinite; }
-.animate-shimmer {
-  background: linear-gradient(to right, #f6f7f8 0%, #edeef0 20%, #f6f7f8 40%);
-  background-size: 1000px 100%;
-  animation: shimmer 1.5s infinite linear;
-}
-.dark .animate-shimmer {
-  background: linear-gradient(to right, #374151 0%, #4b5563 20%, #374151 40%);
-  background-size: 1000px 100%;
-}
-.animate-float { animation: float 3s ease-in-out infinite; }
-
-/* Glassmorphism effect */
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.3); /* Light background with transparency */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-.dark .glassmorphism {
-  background: rgba(0, 0, 0, 0.2); /* Darker background with transparency */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Custom scrollbar for better aesthetics */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* soft gray */
-  border-radius: 4px;
-}
-.dark::-webkit-scrollbar-thumb {
-  background: #4b5563; /* dark gray */
-}
-`;
-
-
-// --- Translation Management ---
+// Configuration des traductions
 const translations = {
   fr: {
     appTitle: "Mon Frigo Malin 🥦🥕",
@@ -319,12 +248,6 @@ const translations = {
     uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
     userIdDisplay: "Votre ID utilisateur : ",
     firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées.",
-    addRecipeTitle: "Ajouter une nouvelle recette",
-    recipeName: "Nom de la recette",
-    recipeIngredients: "Ingrédients (un par ligne)",
-    recipeInstructions: "Instructions",
-    addRecipe: "Ajouter la recette",
-    recipeAddedSuccess: "Recette ajoutée avec succès !",
   },
   en: {
     appTitle: "My Smart Fridge 🥦🥕",
@@ -505,12 +428,6 @@ const translations = {
     uploadingMealPhotoDetailed: "Uploading meal photo...",
     userIdDisplay: "Your User ID: ",
     firebaseNotInitialized: "Firebase not initialized. Some features may be limited.",
-    addRecipeTitle: "Add New Recipe",
-    recipeName: "Recipe Name",
-    recipeIngredients: "Ingredients (one per line)",
-    recipeInstructions: "Instructions",
-    addRecipe: "Add Recipe",
-    recipeAddedSuccess: "Recipe added successfully!",
   }
 };
 
@@ -521,7 +438,14 @@ const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, 
   const t = translations[currentLanguage];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 animate-fadeIn" aria-modal="true" role="dialog">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+      aria-modal="true"
+      role="dialog"
+    >
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -532,34 +456,40 @@ const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, 
         <p className="text-lg mb-6 text-gray-800 dark:text-gray-200">{message}</p>
         <div className="flex justify-center gap-4">
           {onCancel && (
-            <button
-              className="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
               onClick={onCancel}
               aria-label={t.cancel}
             >
               {t.cancel}
-            </button>
+            </motion.button>
           )}
           {showConfirmButton && onConfirm ? (
-            <button
-              className="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-200"
               onClick={onConfirm}
               aria-label={t.delete}
             >
               {t.delete}
-            </button>
+            </motion.button>
           ) : (
-            <button
-              className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200"
               onClick={onCancel || onConfirm}
               aria-label={t.ok}
             >
               {t.ok}
-            </button>
+            </motion.button>
           )}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -578,11 +508,18 @@ const LoadingSpinner = () => (
   <Loader2 className="w-5 h-5 animate-spin text-white" />
 );
 
-// OnboardingModal component
+// OnboardingModal component (simple, not multi-step)
 const OnboardingModal = ({ onClose, currentLanguage }) => {
   const t = translations[currentLanguage];
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fadeIn" aria-modal="true" role="dialog">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4"
+      aria-modal="true"
+      role="dialog"
+    >
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -613,17 +550,20 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
             <p>{t.onboardingStep3Desc}</p>
           </div>
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onClose}
-          className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="mt-8 bg-indigo-600 text-white px-8 py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
           aria-label={t.onboardingButton}
         >
           {t.onboardingButton}
-        </button>
+        </motion.button>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
+
 
 // Helper function for Gemini API calls with exponential backoff
 const callGeminiApi = async (model, payload, retries = 3, delay = 1000) => {
@@ -684,7 +624,7 @@ export default function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(null);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('recipeOfTheDay'); // Default to daily recipe
+  const [viewMode, setViewMode] = useState('upload'); // Default to upload view
   const [modalMessage, setModalMessage] = useState('');
   const [modalOnConfirm, setModalOnConfirm] = useState(null);
   const [modalOnCancel, setModalOnCancel] = useState(null);
@@ -700,11 +640,6 @@ export default function App() {
   const [lastCookingLogDate, setLastCookingLogDate] = useState('');
   const [copied, setCopied] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
-  const [showAddRecipeModal, setShowAddRecipeModal] = useState(false); // State for Add Recipe modal
-
-  const [newRecipeName, setNewRecipeName] = useState('');
-  const [newRecipeIngredients, setNewRecipeIngredients] = useState('');
-  const [newRecipeInstructions, setNewRecipeInstructions] = useState('');
 
 
   const [cuisineType, setCuisineType] = useState('none');
@@ -942,9 +877,6 @@ export default function App() {
     setFavoriteDifficultyFilter('none');
     setFavoriteDietaryFilter('none');
     setFavoriteDishTypeFilter('none');
-    setNewRecipeName('');
-    setNewRecipeIngredients('');
-    setNewRecipeInstructions('');
   }, []);
 
   const handleOnboardingComplete = useCallback(() => {
@@ -1138,47 +1070,6 @@ export default function App() {
       setLoadingMessage(null);
     }
   }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, userId, db]);
-
-  const handleAddCustomRecipe = useCallback(async () => {
-    clearError();
-    if (!newRecipeName.trim() || !newRecipeIngredients.trim() || !newRecipeInstructions.trim()) {
-      showModal("Veuillez remplir tous les champs de la recette.", closeModal, closeModal);
-      return;
-    }
-
-    setLoadingMessage("Ajout de la recette...");
-
-    const recipeContent = `<h2>${newRecipeName}</h2>
-    <h3>Ingrédients :</h3>
-    <ul>${newRecipeIngredients.split('\n').map(item => `<li>${item.trim()}</li>`).join('')}</ul>
-    <h3>Instructions :</h3>
-    <ol>${newRecipeInstructions.split('\n').map(item => `<li>${item.trim()}</li>`).join('')}</ol>`;
-
-    try {
-      if (db && userId) {
-        const historyCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`);
-        await addDoc(historyCollectionRef, {
-          title: newRecipeName,
-          content: recipeContent,
-          date: new Date().toISOString().slice(0, 10),
-          filters: { cuisineType: 'none', preparationTime: 'none', difficulty: 'none', dishType: 'none', dietaryPreference: 'none' } // Default filters for manual entry
-        });
-        showModal(t.recipeAddedSuccess, () => {
-          setShowAddRecipeModal(false);
-          resetAllStates();
-          setViewMode('history'); // Navigate to history after adding
-          closeModal();
-        }, null);
-      } else {
-        showModal(t.firebaseNotInitialized, closeModal, closeModal);
-      }
-    } catch (err) {
-      handleError("Erreur lors de l'ajout de la recette :", err);
-    } finally {
-      setLoadingMessage(null);
-    }
-  }, [newRecipeName, newRecipeIngredients, newRecipeInstructions, clearError, showModal, closeModal, handleError, t.recipeAddedSuccess, t.firebaseNotInitialized, userId, db, resetAllStates]);
-
 
   const isFavorite = useCallback((recipeContent) => {
     return favoriteRecipes.some(fav => fav.content === recipeContent);
@@ -1685,17 +1576,11 @@ export default function App() {
     setFavoriteDishTypeFilter('none');
   }, []);
 
-  // Variants for page transitions
-  const pageVariants = {
-    initial: { opacity: 0, x: 200 },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -200 }
-  };
-
-  const pageTransition = {
-    type: "tween",
-    ease: "easeInOut",
-    duration: 0.4
+  // Variants pour les transitions de page/section
+  const sectionVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    exit: { opacity: 0, x: 50, transition: { duration: 0.4, ease: "easeIn" } }
   };
 
   if (!isAuthReady) {
@@ -1708,12 +1593,75 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-br from-red-50 to-orange-100 text-gray-800'} transition-colors duration-300 font-sans`}>
-      {/* Custom styles injected */}
-      <style>{customStyles}</style>
+    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800'} transition-colors duration-300 font-sans`}>
+      {/* Navigation Bar / Header */}
+      <header className={`py-4 shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} border-b border-gray-200 ${darkMode ? 'border-gray-700' : ''}`}>
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+          <h1 className="text-3xl font-extrabold text-indigo-600 flex items-center gap-2 mb-4 md:mb-0">
+            <Utensils className="w-8 h-8 transition-transform duration-300 hover:scale-110 hover:rotate-6" aria-hidden="true" /> {t.appTitle}
+          </h1>
+          <nav className="flex flex-wrap justify-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setViewMode('upload'); resetAllStates(); }}
+              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                ${viewMode === 'upload' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+              `}
+              aria-label={t.uploadSectionTitle}
+            >
+              <Camera className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.uploadSectionTitle.split(' ')[0]}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setViewMode('favorites')}
+              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                ${viewMode === 'favorites' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+              `}
+              aria-label={t.favorites}
+            >
+              <Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.favorites}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setViewMode('history')}
+              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                ${viewMode === 'history' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+              `}
+              aria-label={t.history}
+            >
+              <History className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.history}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setViewMode('dailyRecipe'); fetchDailyRecipe(); }}
+              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                ${viewMode === 'dailyRecipe' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+              `}
+              aria-label={t.recipeOfTheDay}
+            >
+              <Sun className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.recipeOfTheDay}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setViewMode('settings')}
+              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                ${viewMode === 'settings' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+              `}
+              aria-label={t.settings}
+            >
+              <Settings className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.settings}
+            </motion.button>
+          </nav>
+        </div>
+      </header>
 
-      {/* Main Content Area */}
-      <main className="container mx-auto px-4 py-8 flex-grow overflow-y-auto pb-20"> {/* Added pb-20 for bottom nav */}
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8 flex-grow">
         {error && (
           <div className={`mt-4 mb-8 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 ${darkMode ? 'bg-red-900 border-red-700 text-red-200' : ''} animate-fadeIn`} role="alert">
             <Info className="w-5 h-5" aria-hidden="true" /> {error}
@@ -1724,18 +1672,19 @@ export default function App() {
           {viewMode === 'upload' && (
             <motion.section
               key="upload"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-                <Eye className="w-7 h-7" aria-hidden="true" /> {t.uploadSectionTitle}
+                <Eye className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.uploadSectionTitle}
               </h2>
 
-              <div
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 className={`border-2 border-dashed border-gray-300 ${darkMode ? 'border-gray-600' : ''} rounded-xl p-10 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group
                 ${selectedImage ? 'hover:bg-transparent' : (darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50')}
                 ${loadingMessage ? 'pointer-events-none opacity-70' : 'hover:border-indigo-500 dark:hover:border-indigo-400'}
@@ -1770,26 +1719,39 @@ export default function App() {
                     </div>
                   )}
                 </label>
-              </div>
+              </motion.div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleAnalyzeImage}
-                className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 disabled={!!loadingMessage || !selectedImage}
                 aria-label={loadingMessage ? loadingMessage : t.analyzeButton}
               >
                 {loadingMessage && <LoadingSpinner />}
                 {loadingMessage ? loadingMessage : t.analyzeButton}
-              </button>
+              </motion.button>
 
               {detectedIngredients.length > 0 && (
-                <div className={`mt-8 p-6 border rounded-xl border-gray-200 ${darkMode ? 'border-gray-700 bg-gray-700' : 'bg-gray-50'} shadow-inner animate-fadeInUp glassmorphism`}>
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={sectionVariants}
+                  className={`mt-8 p-6 border rounded-xl border-gray-200 ${darkMode ? 'border-gray-700 bg-gray-700' : 'bg-gray-50'} shadow-inner glassmorphism`}
+                >
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
-                    <Salad className="w-6 h-6" aria-hidden="true" /> {t.ingredientsDetected}
+                    <Salad className="w-6 h-6 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.ingredientsDetected}
                   </h3>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {detectedIngredients.map((ing, index) => (
-                      <span key={index} className={`flex items-center bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full ${darkMode ? 'bg-indigo-800 text-indigo-100' : ''} transition-all duration-200 transform hover:scale-105`}>
+                      <motion.span
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className={`flex items-center bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full ${darkMode ? 'bg-indigo-800 text-indigo-100' : ''} transition-all duration-200 transform hover:scale-105`}
+                      >
                         <input
                           type="text"
                           value={ing.name}
@@ -1823,19 +1785,24 @@ export default function App() {
                         {ing.expiryDate && (
                           <span className="ml-2 text-xs opacity-80" aria-label={`Date de péremption : ${ing.expiryDate}`}>({ing.expiryDate})</span>
                         )}
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.8 }}
                           onClick={() => handleRemoveIngredient(index)}
-                          className="ml-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-100 font-bold transition-transform hover:scale-125"
+                          className="ml-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-100 font-bold transition-transform"
                           aria-label={`Supprimer ${ing.name}`}
                         >
                           <X className="w-4 h-4" aria-hidden="true" />
-                        </button>
-                      </span>
+                        </motion.button>
+                      </motion.span>
                     ))}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <input
+                    <motion.input
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
                       type="text"
                       placeholder={t.placeholderIngredients}
                       value={newIngredientInput}
@@ -1843,7 +1810,10 @@ export default function App() {
                       className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
                       aria-label={t.placeholderIngredients}
                     />
-                    <input
+                    <motion.input
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
                       type="number"
                       placeholder={t.addQuantity}
                       value={newIngredientQuantity}
@@ -1851,7 +1821,10 @@ export default function App() {
                       className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
                       aria-label={t.addQuantity}
                     />
-                    <select
+                    <motion.select
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
                       value={newIngredientUnit}
                       onChange={(e) => setNewIngredientUnit(e.target.value)}
                       className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
@@ -1865,8 +1838,11 @@ export default function App() {
                       <option value="liters">{t.unitLiters}</option>
                       <option value="cups">{t.unitCups}</option>
                       <option value="spoons">{t.unitSpoons}</option>
-                    </select>
-                    <input
+                    </motion.select>
+                    <motion.input
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.25 }}
                       type="date"
                       placeholder={t.addExpiryDate}
                       value={newIngredientExpiry}
@@ -1874,22 +1850,24 @@ export default function App() {
                       className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
                       aria-label={t.addExpiryDate}
                     />
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={handleAddIngredient}
-                      className="col-span-full bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:-translate-y-1 active:scale-98"
+                      className="col-span-full bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={!newIngredientInput.trim()}
                       aria-label={t.addIngredient}
                     >
                       <PlusCircle className="w-5 h-5 inline-block mr-2 transition-transform duration-200 group-hover:rotate-90" aria-hidden="true" /> {t.addIngredient}
-                    </button>
+                    </motion.button>
                   </div>
 
                   {/* New customization filters */}
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Cuisine Type */}
-                    <div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                       <label htmlFor="cuisine-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                        <ChefHat className="w-4 h-4" aria-hidden="true" /> {t.cuisineType}
+                        <ChefHat className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.cuisineType}
                       </label>
                       <select
                         id="cuisine-type-select"
@@ -1908,12 +1886,12 @@ export default function App() {
                         <option value="american">{t.cuisineAmerican}</option>
                         <option value="other">{t.cuisineOther}</option>
                       </select>
-                    </div>
+                    </motion.div>
 
                     {/* Preparation Time */}
-                    <div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
                       <label htmlFor="prep-time-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                        <Clock className="w-4 h-4" aria-hidden="true" /> {t.prepTime}
+                        <Clock className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.prepTime}
                       </label>
                       <select
                         id="prep-time-select"
@@ -1927,12 +1905,12 @@ export default function App() {
                         <option value="medium">{t.timeMedium}</option>
                         <option value="long">{t.timeLong}</option>
                       </select>
-                    </div>
+                    </motion.div>
 
                     {/* Difficulty */}
-                    <div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                       <label htmlFor="difficulty-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                        <TrendingUp className="w-4 h-4" aria-hidden="true" /> {t.difficulty}
+                        <TrendingUp className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.difficulty}
                       </label>
                       <select
                         id="difficulty-select"
@@ -1946,12 +1924,12 @@ export default function App() {
                         <option value="medium">{t.difficultyMedium}</option>
                         <option value="hard">{t.difficultyHard}</option>
                       </select>
-                    </div>
+                    </motion.div>
 
                     {/* Dish Type */}
-                    <div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
                       <label htmlFor="dish-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                        <Utensils className="w-4 h-4" aria-hidden="true" /> {t.dishType}
+                        <Utensils className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.dishType}
                       </label>
                       <select
                         id="dish-type-select"
@@ -1970,20 +1948,22 @@ export default function App() {
                         <option value="salad">{t.dishTypeSalad}</option>
                         <option value="drink">{t.dishTypeDrink}</option>
                       </select>
-                    </div>
+                    </motion.div>
                   </div>
 
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleGenerateRecipe}
-                    className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     disabled={!!loadingMessage || detectedIngredients.length === 0}
                     aria-label={loadingMessage ? loadingMessage : t.generateRecipeButton}
                   >
                     {loadingMessage && <LoadingSpinner />}
                     {loadingMessage ? loadingMessage : t.generateRecipeButton}
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               )}
             </motion.section>
           )}
@@ -1991,15 +1971,14 @@ export default function App() {
           {viewMode === 'recipe' && (
             <motion.section
               key="recipe"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-                <Utensils className="w-7 h-7" aria-hidden="true" /> {t.recipeTitle}
+                <Utensils className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.recipeTitle}
               </h2>
 
               {loadingMessage && (
@@ -2012,17 +1991,24 @@ export default function App() {
               )}
 
               {generatedRecipe && !loadingMessage && (
-                <div className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 glassmorphism`}>
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 glassmorphism`}
+                >
                   <div dangerouslySetInnerHTML={{ __html: generatedRecipe }}></div>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={copyRecipeToClipboard}
-                    className="mt-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2 transform hover:scale-105 active:scale-95"
+                    className="mt-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2"
                     aria-label={copied ? t.copied : t.copyToClipboard}
                   >
                     {copied ? <CheckCircle className="w-4 h-4 text-emerald-500" aria-hidden="true" /> : <Clipboard className="w-4 h-4" aria-hidden="true" />}
                     {copied ? t.copied : t.copyToClipboard}
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               )}
 
               {!generatedRecipe && !loadingMessage && (
@@ -2034,23 +2020,26 @@ export default function App() {
 
               {generatedRecipe && !loadingMessage && (
                 <div className="mt-6 flex flex-wrap gap-4 justify-center">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleToggleFavorite}
                     className={`px-6 py-3 rounded-lg text-lg font-semibold transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg
                       ${isFavorite(generatedRecipe) ? 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500' : 'bg-pink-500 text-white hover:bg-pink-600 focus:ring-pink-500'}
-                      transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2
                     `}
                     aria-label={isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
                   >
-                    <Heart className="w-5 h-5" aria-hidden="true" /> {isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
-                  </button>
-                  <button
+                    <Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => resetAllStates()}
-                    className="px-6 py-3 rounded-lg text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-6 py-3 rounded-lg text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
                     aria-label={t.newAnalysis}
                   >
-                    <Camera className="w-5 h-5" aria-hidden="true" /> {t.newAnalysis}
-                  </button>
+                    <Camera className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.newAnalysis}
+                  </motion.button>
                 </div>
               )}
 
@@ -2060,16 +2049,22 @@ export default function App() {
                   <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Améliorez votre recette :</h3>
 
                   {/* Adapt Recipe */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowAdaptRecipeInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showAdaptRecipeInput}
                       aria-controls="adapt-recipe-panel"
                     >
-                      <span className="flex items-center gap-2"><Salad className="w-5 h-5" aria-hidden="true" /> {t.adaptRecipe}</span>
+                      <span className="flex items-center gap-2"><Salad className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.adaptRecipe}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showAdaptRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showAdaptRecipeInput && (
                       <motion.div
                         id="adapt-recipe-panel"
@@ -2088,30 +2083,38 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterAdaptRequest}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleAdaptRecipe}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !adaptRecipePrompt.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.adapt}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.adapt}
-                        </button>
+                        </motion.button>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Substitute Ingredient */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowSubstituteIngredientInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showSubstituteIngredientInput}
                       aria-controls="substitute-ingredient-panel"
                     >
-                      <span className="flex items-center gap-2"><Apple className="w-5 h-5" aria-hidden="true" /> {t.substituteIngredient}</span>
+                      <span className="flex items-center gap-2"><Apple className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.substituteIngredient}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showSubstituteIngredientInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showSubstituteIngredientInput && (
                       <motion.div
                         id="substitute-ingredient-panel"
@@ -2139,30 +2142,38 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterSubstituteWith}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleSubstituteIngredient}
-                          className="md:col-span-2 bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="md:col-span-2 bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !ingredientToSubstitute.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.substitute}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.substitute}
-                        </button>
+                        </motion.button>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Scale Recipe */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowScaleRecipeInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showScaleRecipeInput}
                       aria-controls="scale-recipe-panel"
                     >
-                      <span className="flex items-center gap-2"><Package className="w-5 h-5" aria-hidden="true" /> {t.scaleRecipe}</span>
+                      <span className="flex items-center gap-2"><Package className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.scaleRecipe}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showScaleRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showScaleRecipeInput && (
                       <motion.div
                         id="scale-recipe-panel"
@@ -2181,30 +2192,38 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterServings}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleScaleRecipe}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !scaleServings}
                           aria-label={loadingMessage ? loadingMessage : t.scale}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.scale}
-                        </button>
+                        </motion.button>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Optimize Recipe Health */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowOptimizeRecipeInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showOptimizeRecipeInput}
                       aria-controls="optimize-recipe-panel"
                     >
-                      <span className="flex items-center gap-2"><Heart className="w-5 h-5" aria-hidden="true" /> {t.optimizeRecipeHealth}</span>
+                      <span className="flex items-center gap-2"><Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.optimizeRecipeHealth}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showOptimizeRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showOptimizeRecipeInput && (
                       <motion.div
                         id="optimize-recipe-panel"
@@ -2223,30 +2242,38 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterHealthGoals}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleOptimizeRecipeHealth}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !optimizeRecipePrompt.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.optimize}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.optimize}
-                        </button>
+                        </motion.button>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Ask Cooking Tip */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowCookingTipInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showCookingTipInput}
                       aria-controls="cooking-tip-panel"
                     >
-                      <span className="flex items-center gap-2"><Lightbulb className="w-5 h-5" aria-hidden="true" /> {t.askCookingTip}</span>
+                      <span className="flex items-center gap-2"><Lightbulb className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.askCookingTip}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showCookingTipInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showCookingTipInput && (
                       <motion.div
                         id="cooking-tip-panel"
@@ -2265,15 +2292,17 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterCookingQuestion}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleAskCookingTip}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !cookingTipPrompt.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.ask}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.ask}
-                        </button>
+                        </motion.button>
                         {cookingTipResult && (
                           <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
                             <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.cookingTip}</h4>
@@ -2282,33 +2311,45 @@ export default function App() {
                         )}
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Meal Prep Guide */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={handleGenerateMealPrepGuide}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       disabled={!!loadingMessage || !generatedRecipe}
                       aria-label={loadingMessage ? loadingMessage : t.mealPrepGuide}
                     >
-                      <span className="flex items-center gap-2"><ChefHat className="w-5 h-5" aria-hidden="true" /> {t.mealPrepGuide}</span>
+                      <span className="flex items-center gap-2"><ChefHat className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.mealPrepGuide}</span>
                       {loadingMessage && <LoadingSpinner />}
                       {!loadingMessage && <CheckCircle className="w-5 h-5 text-emerald-500" aria-hidden="true" />}
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
 
                   {/* Food Pairing Suggestions */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowFoodPairingInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showFoodPairingInput}
                       aria-controls="food-pairing-panel"
                     >
-                      <span className="flex items-center gap-2"><Salad className="w-5 h-5" aria-hidden="true" /> {t.foodPairingSuggestions}</span>
+                      <span className="flex items-center gap-2"><Salad className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.foodPairingSuggestions}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showFoodPairingInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showFoodPairingInput && (
                       <motion.div
                         id="food-pairing-panel"
@@ -2327,15 +2368,17 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterFoodForPairing}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleGetFoodPairingSuggestions}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !foodPairingQuery.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.ask}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.ask}
-                        </button>
+                        </motion.button>
                         {foodPairingResult && (
                           <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
                             <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.foodPairingResultTitle} {foodPairingQuery} :</h4>
@@ -2344,19 +2387,25 @@ export default function App() {
                         )}
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Get Ingredient Info */}
-                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
-                    <button
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45 }}
+                    className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}
+                  >
+                    <motion.button
+                      whileHover={{ x: 5 }}
                       onClick={() => setShowIngredientInfoInput(prev => !prev)}
                       className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
                       aria-expanded={showIngredientInfoInput}
                       aria-controls="ingredient-info-panel"
                     >
-                      <span className="flex items-center gap-2"><Search className="w-5 h-5" aria-hidden="true" /> {t.getIngredientInfo}</span>
+                      <span className="flex items-center gap-2"><Search className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.getIngredientInfo}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showIngredientInfoInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                    </button>
+                    </motion.button>
                     {showIngredientInfoInput && (
                       <motion.div
                         id="ingredient-info-panel"
@@ -2375,15 +2424,17 @@ export default function App() {
                           disabled={!!loadingMessage}
                           aria-label={t.enterIngredientName}
                         />
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleGetIngredientInfo}
-                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           disabled={!!loadingMessage || !ingredientInfoQuery.trim()}
                           aria-label={loadingMessage ? loadingMessage : t.ask}
                         >
                           {loadingMessage && <LoadingSpinner />}
                           {loadingMessage ? loadingMessage : t.ask}
-                        </button>
+                        </motion.button>
                         {ingredientInfoResult && (
                           <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
                             <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.ingredientInfo} :</h4>
@@ -2392,7 +2443,7 @@ export default function App() {
                         )}
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                 </div>
               )}
@@ -2402,15 +2453,14 @@ export default function App() {
           {viewMode === 'favorites' && (
             <motion.section
               key="favorites"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-                <Heart className="w-7 h-7" aria-hidden="true" /> {t.favorites}
+                <Heart className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.favorites}
               </h2>
 
               {/* Filters for favorites */}
@@ -2517,13 +2567,15 @@ export default function App() {
                       <option value="drink">{t.dishTypeDrink}</option>
                     </select>
                   </div>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={clearFavoriteFilters}
-                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200"
                     aria-label={t.clearFilters}
                   >
                     <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
@@ -2560,20 +2612,24 @@ export default function App() {
                         <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
                       </div>
                       <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
-                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300"
                           aria-label={t.viewRecipe}
                         >
                           {t.viewRecipe}
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.25 }}
+                          whileTap={{ scale: 0.75 }}
                           onClick={() => handleDeleteFavorite(recipe.id)}
-                          className="text-red-500 hover:text-red-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
+                          className="text-red-500 hover:text-red-700 transition-colors duration-300 ml-4 rounded-full p-1"
                           aria-label={t.removeFromFavorites}
                         >
                           <X className="w-5 h-5" aria-hidden="true" />
-                        </button>
+                        </motion.button>
                       </div>
                     </motion.div>
                   ))}
@@ -2585,15 +2641,14 @@ export default function App() {
           {viewMode === 'history' && (
             <motion.section
               key="history"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-                <History className="w-7 h-7" aria-hidden="true" /> {t.history}
+                <History className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.history}
               </h2>
 
               {/* Filters for history (reusing same states as favorites for demo) */}
@@ -2700,13 +2755,15 @@ export default function App() {
                       <option value="drink">{t.dishTypeDrink}</option>
                     </select>
                   </div>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={clearFavoriteFilters}
-                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200"
                     aria-label={t.clearFilters}
                   >
                     <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
@@ -2750,15 +2807,19 @@ export default function App() {
                         <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
                       </div>
                       <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
-                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300"
                           aria-label={t.viewRecipe}
                         >
                           {t.viewRecipe}
-                        </button>
+                        </motion.button>
                         {!isFavorite(recipe.content) && (
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.25 }}
+                            whileTap={{ scale: 0.75 }}
                             onClick={async () => {
                               if (!db || !userId) { // Check if db is initialized
                                 showModal(t.firebaseNotInitialized, closeModal, closeModal);
@@ -2777,11 +2838,11 @@ export default function App() {
                                 handleError("Erreur lors de l'ajout aux favoris :", e);
                               }
                             }}
-                            className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-full p-1"
+                            className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 rounded-full p-1"
                             aria-label={t.addToFavorites}
                           >
                             <Heart className="w-5 h-5" aria-hidden="true" />
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     </motion.div>
@@ -2794,26 +2855,15 @@ export default function App() {
           {viewMode === 'dailyRecipe' && (
             <motion.section
               key="dailyRecipe"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
-              <div className="relative h-48 w-full rounded-xl overflow-hidden mb-6 shadow-md">
-                <img
-                  src="https://placehold.co/600x200/FFDDC1/FF6B6B?text=Recette+du+Jour"
-                  alt="Daily Recipe Header"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                  <h2 className="text-3xl font-extrabold text-white flex items-center gap-3">
-                    <Sun className="w-8 h-8" aria-hidden="true" /> {t.recipeOfTheDay}
-                  </h2>
-                </div>
-              </div>
-
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Sun className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.recipeOfTheDay}
+              </h2>
               {loadingMessage ? (
                 <div className="py-8">
                   <SkeletonLoader lines={10} className="w-full" />
@@ -2836,44 +2886,55 @@ export default function App() {
                   <p className="text-lg">{t.noDailyRecipe}</p>
                 </div>
               )}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => fetchDailyRecipe()}
-                className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                 disabled={!!loadingMessage}
                 aria-label={loadingMessage ? loadingMessage : t.recipeOfTheDay}
               >
                 {loadingMessage && <LoadingSpinner />}
                 {loadingMessage ? loadingMessage : t.recipeOfTheDay}
-              </button>
+              </motion.button>
             </motion.section>
           )}
 
           {viewMode === 'settings' && (
             <motion.section
               key="settings"
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={sectionVariants}
               className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-                <Settings className="w-7 h-7" aria-hidden="true" /> {t.settings}
+                <Settings className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.settings}
               </h2>
 
               {/* User ID Display */}
               {userId && (
-                <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center gap-3 glassmorphism`}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center gap-3 glassmorphism`}
+                >
                   <User className="w-6 h-6 text-indigo-600 dark:text-indigo-300" aria-hidden="true" />
                   <span className="text-lg font-semibold">{t.userIdDisplay}</span>
                   <span className="break-all font-mono text-sm text-gray-700 dark:text-gray-300">{userId}</span>
-                </div>
+                </motion.div>
               )}
 
 
               {/* Language Selection */}
-              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}
+              >
                 <label htmlFor="language-select" className="block text-lg font-semibold mb-2">
                   {t.languageSelection}
                 </label>
@@ -2890,26 +2951,38 @@ export default function App() {
                   <option value="es">{t.languageSpanish}</option>
                   <option value="it">{t.languageItalian}</option>
                 </select>
-              </div>
+              </motion.div>
 
               {/* Dark Mode Toggle */}
-              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center justify-between glassmorphism`}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center justify-between glassmorphism`}
+              >
                 <span className="text-lg font-semibold">Mode Sombre :</span>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setDarkMode(prev => !prev)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${darkMode ? 'bg-indigo-600' : 'bg-gray-200'} focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                   aria-pressed={darkMode}
                   aria-label={`Toggle dark mode, currently ${darkMode ? t.darkModeOn : t.darkModeOff}`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
+                </motion.button>
                 <span className="text-sm ml-2">
                   {darkMode ? t.darkModeOn : t.darkModeOff}
                 </span>
-              </div>
+              </motion.div>
 
               {/* Dietary Preferences */}
-              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}
+              >
                 <label htmlFor="dietary-preference-select" className="block text-lg font-semibold mb-2">
                   {t.dietaryPreferences}
                 </label>
@@ -2927,199 +3000,73 @@ export default function App() {
                   <option value="halal">{t.dietaryHalal}</option>
                   <option value="kosher">{t.dietaryKosher}</option>
                 </select>
-              </div>
+              </motion.div>
 
 
               {/* Cooking Streak */}
-              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Flame className="w-5 h-5 text-indigo-600" aria-hidden="true" />{t.myCookingStreak} : <span className="text-indigo-600 dark:text-indigo-300 font-bold">{cookingStreak} {cookingStreak > 1 ? 'jours' : 'jour'}</span></h3>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}
+              >
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Flame className="w-5 h-5 text-indigo-600 transition-transform duration-200 hover:scale-110" aria-hidden="true" />{t.myCookingStreak} : <span className="text-indigo-600 dark:text-indigo-300 font-bold">{cookingStreak} {cookingStreak > 1 ? 'jours' : 'jour'}</span></h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Enregistrez un plat cuisiné chaque jour pour augmenter votre série ! Dernière connexion : {lastCookingLogDate || 'Jamais'}
                 </p>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleUploadMealPhoto}
-                  className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
+                  className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   disabled={!!loadingMessage || !selectedImage}
                   aria-label={loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
                 >
                   {loadingMessage && <LoadingSpinner />}
                   {loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
               {/* Clear All Data */}
-              <div className={`mt-8 p-4 rounded-xl border border-red-300 ${darkMode ? 'bg-red-900 border-red-700' : 'bg-red-50'} shadow-sm glassmorphism`}>
-                <button
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className={`mt-8 p-4 rounded-xl border border-red-300 ${darkMode ? 'bg-red-900 border-red-700' : 'bg-red-50'} shadow-sm glassmorphism`}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleClearAllData}
-                  className="w-full bg-red-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-red-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  className="w-full bg-red-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-red-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
                   aria-label={t.clearAllData}
                 >
-                  <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearAllData}
-                </button>
-              </div>
+                  <Eraser className="w-5 h-5 inline-block mr-2 transition-transform duration-200 hover:rotate-12" aria-hidden="true" /> {t.clearAllData}
+                </motion.button>
+              </motion.div>
             </motion.section>
           )}
         </AnimatePresence>
       </main>
 
-      {/* Bottom Navigation Bar */}
-      <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? 'bg-gray-800' : 'bg-white'} border-t border-gray-200 ${darkMode ? 'border-gray-700' : ''} shadow-lg py-2 z-40`}>
-        <div className="flex justify-around items-center h-full max-w-lg mx-auto">
-          <button
-            onClick={() => { setViewMode('recipeOfTheDay'); fetchDailyRecipe(); }}
-            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'recipeOfTheDay' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-            aria-label={t.recipeOfTheDay}
-          >
-            <Sun className="w-6 h-6 mb-1" />
-            <span className="hidden sm:inline">{t.recipeOfTheDay.split(' ')[0]}</span>
-          </button>
-
-          <button
-            onClick={() => setViewMode('favorites')}
-            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'favorites' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-            aria-label={t.favorites}
-          >
-            <Heart className="w-6 h-6 mb-1" />
-            <span className="hidden sm:inline">{t.favorites}</span>
-          </button>
-
-          {/* Central Add Button */}
-          <motion.button
-            whileTap={{ scale: 1.2 }}
-            onClick={() => setShowAddRecipeModal(true)}
-            className="flex flex-col items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-lg -mt-8 border-4 border-white dark:border-gray-800 transition-all duration-300 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50"
-            aria-label={t.addRecipeTitle}
-          >
-            <Plus className="w-8 h-8" />
-            <span className="sr-only">{t.addRecipeTitle}</span>
-          </motion.button>
-
-          <button
-            onClick={() => setViewMode('history')}
-            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'history' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-            aria-label={t.history}
-          >
-            <History className="w-6 h-6 mb-1" />
-            <span className="hidden sm:inline">{t.history}</span>
-          </button>
-
-          <button
-            onClick={() => setViewMode('settings')}
-            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-            aria-label={t.settings}
-          >
-            <Settings className="w-6 h-6 mb-1" />
-            <span className="hidden sm:inline">{t.settings}</span>
-          </button>
-        </div>
-      </nav>
-
       {/* Custom Modal */}
-      <CustomModal
-        message={modalMessage}
-        onConfirm={modalOnConfirm}
-        onCancel={modalOnCancel}
-        showConfirmButton={showModalConfirmButton}
-        currentLanguage={language}
-      />
+      <AnimatePresence>
+        {modalMessage && (
+          <CustomModal
+            message={modalMessage}
+            onConfirm={modalOnConfirm}
+            onCancel={closeModal}
+            showConfirmButton={showModalConfirmButton}
+            currentLanguage={language}
+          />
+        )}
+      </AnimatePresence>
+
 
       {/* Onboarding Modal */}
-      {isFirstTimeUser && (
-        <OnboardingModal onClose={handleOnboardingComplete} currentLanguage={language} />
-      )}
-
-      {/* Add Recipe Modal */}
       <AnimatePresence>
-        {showAddRecipeModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
-            aria-modal="true"
-            role="dialog"
-          >
-            <motion.div
-              initial={{ y: "100vh", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100vh", opacity: 0 }}
-              transition={{ type: "spring", damping: 20, stiffness: 100 }}
-              className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-md w-full glassmorphism relative`}
-            >
-              <button
-                onClick={() => setShowAddRecipeModal(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                aria-label="Fermer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <h2 className="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">
-                {t.addRecipeTitle}
-              </h2>
-
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  visible: {
-                    transition: {
-                      staggerChildren: 0.1
-                    }
-                  }
-                }}
-              >
-                {[
-                  { label: t.recipeName, type: 'text', value: newRecipeName, onChange: setNewRecipeName, placeholder: t.recipeName },
-                  { label: t.recipeIngredients, type: 'textarea', value: newRecipeIngredients, onChange: setNewRecipeIngredients, placeholder: t.recipeIngredients },
-                  { label: t.recipeInstructions, type: 'textarea', value: newRecipeInstructions, onChange: setNewRecipeInstructions, placeholder: t.recipeInstructions },
-                ].map((field, index) => (
-                  <motion.div
-                    key={index}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 }
-                    }}
-                    className="mb-4"
-                  >
-                    <label htmlFor={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`} className="block text-md font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                      {field.label}
-                    </label>
-                    {field.type === 'text' ? (
-                      <input
-                        type="text"
-                        id={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        placeholder={field.placeholder}
-                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        aria-label={field.label}
-                      />
-                    ) : (
-                      <textarea
-                        id={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        placeholder={field.placeholder}
-                        rows="4"
-                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        aria-label={field.label}
-                      ></textarea>
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              <button
-                onClick={handleAddCustomRecipe}
-                className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                disabled={!!loadingMessage || !newRecipeName.trim() || !newRecipeIngredients.trim() || !newRecipeInstructions.trim()}
-                aria-label={loadingMessage ? loadingMessage : t.addRecipe}
-              >
-                {loadingMessage && <LoadingSpinner />}
-                {loadingMessage ? loadingMessage : t.addRecipe}
-              </button>
-            </motion.div>
-          </motion.div>
+        {isFirstTimeUser && (
+          <OnboardingModal onClose={handleOnboardingComplete} currentLanguage={language} />
         )}
       </AnimatePresence>
     </div>
