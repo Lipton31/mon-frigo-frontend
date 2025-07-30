@@ -46,12 +46,14 @@ let db;
 let auth;
 
 try {
-  if (Object.keys(firebaseConfig).length > 0 && firebaseConfig.apiKey) {
+  // Only attempt to initialize Firebase if a minimal config is present
+  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
   } else {
-    console.warn("Firebase configuration is missing or incomplete. Firebase will not be initialized.");
+    // This warning will appear if __firebase_config is missing or malformed
+    console.warn("Firebase configuration is missing or incomplete. Firebase will not be initialized. Features relying on database (favorites, history, daily recipe, streak) will be limited.");
   }
 } catch (error) {
   console.error("Error initializing Firebase:", error);
@@ -70,7 +72,7 @@ const blobToBase64 = (blob) => {
 // Configuration des traductions
 const translations = {
   fr: {
-    appTitle: "Mon Frigo Malin 🥦🥕",
+    appTitle: "Mon Frigo Malin �🥕",
     uploadSectionTitle: "Ajouter une photo de votre frigo",
     analyzeButton: "Analyser mon frigo avec l'IA",
     analyzing: "Analyse en cours...",
@@ -247,7 +249,189 @@ const translations = {
     optimizingRecipeDetailed: "Optimisation de la recette pour la santé...",
     uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
     userIdDisplay: "Votre ID utilisateur : ",
-    firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées.",
+    firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées. Veuillez vérifier votre configuration.",
+    currentRecipe: "Ma Recette Actuelle",
+  },
+  en: {
+    appTitle: "My Smart Fridge 🥦🥕",
+    uploadSectionTitle: "Add a photo of your fridge",
+    analyzeButton: "Analyze my fridge with AI",
+    analyzing: "Analyzing...",
+    errorImageRead: "Error reading file.",
+    errorNoImage: "Please select a fridge image first.",
+    ingredientsDetected: "Detected Ingredients:",
+    placeholderIngredients: "Ingredient name",
+    addIngredient: "Add",
+    addExpiryDate: "Expiry Date (MM/DD/YYYY)",
+    addQuantity: "Quantity",
+    addUnit: "Unit",
+    generateRecipeButton: "Generate Recipe",
+    generatingRecipe: "Generating recipe...",
+    errorDetectIngredients: "Could not detect ingredients. Please try again.",
+    errorGenerateRecipe: "Could not generate recipe. Please try again.",
+    errorRecipeGeneration: "Error generating recipe: ",
+    errorImageAnalysis: "Error analyzing image: ",
+    recipeTitle: "Your Smart Recipe!",
+    magicHappening: "Magic in progress... Recipe being created!",
+    newAnalysis: "New analysis",
+    addToFavorites: "Add to Favorites",
+    removeFromFavorites: "Remove From Favorites",
+    favorites: "My Favorites",
+    noFavorites: "You don't have any favorite recipes yet. Start generating some!",
+    recipeOfTheDay: "Recipe of the Day",
+    generatingDailyRecipe: "Generating daily recipe...",
+    noDailyRecipe: "No daily recipe available yet. Check back tomorrow or generate your own!",
+    settings: "Settings",
+    languageSelection: "Language selection:",
+    languageFrench: "French",
+    languageEnglish: "English",
+    languageGerman: "German",
+    languageSpanish: "Spanish",
+    languageItalian: "Italiano",
+    detectedSuccess: "Ingredients detected successfully!",
+    confirmDelete: "Confirm Deletion",
+    confirmDeleteRecipe: "Are you sure you want to delete this recipe from your favorites?",
+    cancel: "Cancel",
+    delete: "Delete",
+    ok: "OK",
+    recipeDeleted: "Recipe deleted from your favorites.",
+    noIngredientsForRecipe: "Please detect ingredients first or enter them manually.",
+    adaptRecipe: "✨ Adapt Recipe",
+    substituteIngredient: "✨ Substitute Ingredient",
+    enterAdaptRequest: "Ex: 'make vegetarian', 'less sugar', 'quicker'",
+    enterIngredientToSubstitute: "Ingredient to substitute (ex: 'chicken')",
+    enterSubstituteWith: "Substitute with (optional, ex: 'tofu')",
+    adapt: "Adapt",
+    substitute: "Substitute",
+    adaptingRecipe: "Adapting recipe...",
+    substitutingIngredient: "Substituting ingredient...",
+    errorAdaptRecipe: "Error adapting recipe: ",
+    errorSubstituteIngredient: "Error substituting ingredient: ",
+    noRecipeToAdapt: "Please generate a recipe to adapt first.",
+    noRecipeToSubstitute: "Please generate a recipe for substitution first.",
+    scaleRecipe: "✨ Scale Recipe",
+    enterServings: "Number of servings (ex: 2, 6)",
+    scale: "Scale",
+    scalingRecipe: "Scaling recipe...",
+    askCookingTip: "✨ Ask for Cooking Tip",
+    enterCookingQuestion: "Your question (ex: 'How to properly sauté onions?')",
+    ask: "Ask",
+    gettingTip: "Getting tip...",
+    noRecipeForTip: "Please generate a recipe to get a tip.",
+    cookingTip: "Cooking Tip:",
+    mealPrepGuide: "✨ Meal Prep Guide",
+    generatingMealPrepGuide: "Generating guide...",
+    noRecipeForMealPrep: "Please generate a recipe for the meal prep guide.",
+    foodPairingSuggestions: "✨ Food Pairing Suggestions",
+    enterFoodForPairing: "Ingredient (ex: 'tomato')",
+    gettingFoodPairings: "Getting suggestions...",
+    noFoodForPairing: "Please enter an ingredient for pairing suggestions.",
+    foodPairingResultTitle: "Pairing Suggestions for",
+    getIngredientInfo: "✨ Get Ingredient Info",
+    enterIngredientName: "Ingredient Name (ex: 'broccoli')",
+    gettingIngredientInfo: "Getting info...",
+    ingredientInfo: "Ingredient Information",
+    noIngredientForInfo: "Please enter an ingredient to get information.",
+    optimizeRecipeHealth: "✨ Optimize Recipe Health",
+    enterHealthGoals: "Ex: 'less fat', 'more fiber', 'vegetarian'",
+    optimize: "Optimize",
+    optimizingRecipe: "Optimizing recipe...",
+    errorOptimizeRecipe: "Error optimizing recipe: ",
+    noRecipeToOptimize: "Please generate a recipe to optimize first.",
+    clearAllData: "Clear All Data",
+    confirmClearAllData: "Are you sure you want to clear all app data (recipes, favorites, etc.)? This action is irreversible.",
+    dataCleared: "All data cleared.",
+    myCookingStreak: "My Cooking Streak",
+    uploadMealPhotoButton: "I cooked this meal!",
+    uploadingMealPhoto: "Uploading meal photo...",
+    streakIncreased: "Great! Your cooking streak increased to {streak} days!",
+    streakReset: "Too bad! Your streak has been reset to 1 day.",
+    alreadyLoggedToday: "You have already logged a meal today.",
+    darkModeOn: "On",
+    darkModeOff: "Off",
+    viewRecipe: "View Recipe",
+    favoriteRecipeTitle: "Favorite Recipe",
+    dietaryPreferences: "Dietary Preferences:",
+    dietaryNone: "Default",
+    dietaryVegetarian: "Vegetarian",
+    dietaryVegan: "Vegan",
+    dietaryGlutenFree: "Gluten-Free",
+    dietaryHalal: "Halal",
+    dietaryKosher: "Kosher",
+    copyToClipboard: "Copy Recipe",
+    copied: "Copied!",
+    unitNone: "None",
+    unitUnits: "units",
+    unitGrams: "grams",
+    unitKilograms: "kilograms",
+    unitMilliliters: "milliliters",
+    unitLiters: "liters",
+    unitCups: "cups",
+    unitSpoons: "spoons",
+    cuisineType: "Cuisine Type:",
+    cuisineNone: "None",
+    cuisineFrench: "French",
+    cuisineItalian: "Italian",
+    cuisineAsian: "Asian",
+    cuisineMexican: "Mexican",
+    cuisineIndian: "Indian",
+    cuisineMediterranean: "Mediterranean",
+    cuisineAmerican: "American",
+    cuisineOther: "Other",
+    prepTime: "Preparation Time:",
+    timeNone: "None",
+    timeQuick: "Less than 30 min",
+    timeMedium: "30-60 min",
+    timeLong: "More than 60 min",
+    difficulty: "Difficulty:",
+    difficultyNone: "None",
+    difficultyEasy: "Easy",
+    difficultyMedium: "Medium",
+    difficultyHard: "Hard",
+    dishType: "Dish Type:",
+    dishTypeNone: "None",
+    dishTypeMain: "Main Course",
+    dishTypeDessert: "Dessert",
+    dishTypeAppetizer: "Appetizer",
+    dishTypeSide: "Side Dish",
+    dishTypeBreakfast: "Breakfast",
+    dishTypeSoup: "Soup",
+    dishTypeSalad: "Salad",
+    dishTypeDrink: "Drink",
+    optimizingImage: "Optimizing image...",
+    history: "My History",
+    noHistory: "No recipes have been generated yet. Start creating one!",
+    searchRecipes: "Search recipes...",
+    filterByCuisine: "Filter by cuisine:",
+    filterByTime: "Filter by time:",
+    filterByDifficulty: "Filter by difficulty:",
+    filterByDietary: "Filter by dietary:",
+    filterByDishType: "Filter by dish type:",
+    clearFilters: "Clear filters",
+    onboardingTitle: "Welcome to My Smart Fridge!",
+    onboardingStep1Title: "1. Analyze your fridge",
+    onboardingStep1Desc: "Take a photo of your fridge's interior. Our AI will detect available ingredients.",
+    onboardingStep2Title: "2. Generate recipes",
+    onboardingStep2Desc: "Based on your ingredients, we'll suggest creative and personalized recipes.",
+    onboardingStep3Title: "3. Explore and adapt",
+    onboardingStep3Desc: "Save your favorite recipes, check your history, and adapt recipes with our advanced AI tools.",
+    onboardingButton: "Let's Go!",
+    errorGeneric: "An unexpected error occurred. Please check your internet connection or try again later. If the problem persists, contact support.",
+    analyzingImage: "Analyzing image...",
+    detectingIngredients: "Detecting ingredients...",
+    generatingRecipeDetailed: "Generating recipe (this may take a few moments)...",
+    adaptingRecipeDetailed: "Adapting recipe...",
+    substitutingIngredientDetailed: "Substituting ingredient...",
+    scalingRecipeDetailed: "Scaling quantities...",
+    gettingTipDetailed: "Getting cooking tip...",
+    generatingMealPrepGuideDetailed: "Generating meal prep guide...",
+    gettingFoodPairingsDetailed: "Getting food pairing suggestions...",
+    gettingIngredientInfoDetailed: "Getting ingredient information...",
+    optimizingRecipeDetailed: "Optimizing recipe for health...",
+    uploadingMealPhotoDetailed: "Uploading meal photo...",
+    userIdDisplay: "Your User ID: ",
+    firebaseNotInitialized: "Firebase is not initialized. Some features may be limited. Please check your configuration.",
+    currentRecipe: "My Current Recipe",
   }
 };
 
@@ -507,16 +691,13 @@ export default function App() {
 
   // --- Firebase Authentication and Data Loading ---
   useEffect(() => {
-    // Check if Firebase is initialized based on the global variables
-    if (!auth || !db) {
+    // Check if Firebase is initialized based on the global variables (app, db, auth)
+    // If Firebase was not initialized due to missing config, db and auth will be undefined.
+    if (!db || !auth) {
       console.warn(t.firebaseNotInitialized);
-      // If firebaseConfig is truly empty, we cannot initialize Firebase.
-      // Set auth ready to true so the UI can render, but features will be limited.
-      if (!firebaseConfig.apiKey && !firebaseConfig.projectId) { // More robust check for empty config
-        setIsAuthReady(true);
-        setUserId(crypto.randomUUID()); // Provide a dummy userId for non-Firebase features
-        return;
-      }
+      setIsAuthReady(true);
+      setUserId(crypto.randomUUID()); // Provide a dummy userId for non-Firebase features
+      return; // Exit early if Firebase is not properly set up
     }
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -558,6 +739,7 @@ export default function App() {
             setDishType(data.dishType || 'none');
             setIsFirstTimeUser(data.isFirstTimeUser === undefined ? true : data.isFirstTimeUser);
           } else {
+            // Initialize user profile if it doesn't exist
             setDoc(userProfileRef, {
               language: 'fr',
               darkMode: false,
@@ -618,7 +800,7 @@ export default function App() {
         dishType,
       }, { merge: true }).catch(console.error);
     }
-  }, [language, darkMode, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, userId, isAuthReady, db]);
+  }, [language, darkMode, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, userId, isAuthReady, db, appId]);
 
   // --- Global state management functions ---
 
@@ -667,7 +849,8 @@ export default function App() {
     setNewIngredientExpiry('');
     setNewIngredientQuantity('');
     setNewIngredientUnit('unit');
-    setGeneratedRecipe('');
+    // Keep generatedRecipe as is, so the "Ma Recette Actuelle" tab can still show it
+    // setGeneratedRecipe('');
     setLoadingMessage(null);
     setError('');
     // setViewMode('upload'); // Keep current view mode or set to a default like 'recipeOfTheDay'
@@ -736,7 +919,7 @@ export default function App() {
     }
 
     setLoadingMessage(t.analyzingImage);
-    setGeneratedRecipe('');
+    setGeneratedRecipe(''); // Clear previous recipe when starting new analysis
     setDetectedIngredients([]);
 
     // Extract base64 data and mimeType from selectedImage (e.g., "data:image/png;base64,iVBORw...")
@@ -825,14 +1008,14 @@ export default function App() {
   const handleGenerateRecipe = useCallback(async () => {
     clearError();
     // Check if Firebase is available for saving history, but don't block recipe generation
-    if (!detectedIngredients.length === 0) {
+    if (detectedIngredients.length === 0) { // Fixed condition: should be 0, not !0
       showModal(t.noIngredientsForRecipe, closeModal, closeModal);
       return;
     }
 
     setLoadingMessage(t.generatingRecipeDetailed);
-    setGeneratedRecipe('');
-    setViewMode('recipe');
+    setGeneratedRecipe(''); // Clear previous recipe before generating new one
+    setViewMode('recipe'); // Automatically switch to recipe view
 
     const ingredientsString = detectedIngredients.map(ing => {
       let ingredientText = ing.name;
@@ -904,7 +1087,8 @@ export default function App() {
     }
     if (!generatedRecipe) return;
 
-    const docId = btoa(generatedRecipe.substring(0, 100)).replace(/=/g, '');
+    // Use a more robust ID for the document from content hash
+    const docId = btoa(generatedRecipe.substring(0, Math.min(generatedRecipe.length, 200))).replace(/=/g, '').slice(0, 100); // Max 200 chars for hash source
     const favoriteRecipeRef = doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId);
 
     if (isFavorite(generatedRecipe)) {
@@ -962,8 +1146,11 @@ export default function App() {
   // --- Daily Recipe ---
   const fetchDailyRecipe = useCallback(async () => {
     clearError();
-    if (!db || !userId) { // This check is crucial and should ideally be handled before calling this function
+    // Crucial check: if db or userId are not available, Firebase is not set up or auth failed.
+    // The modal will inform the user.
+    if (!db || !userId) {
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
+      setLoadingMessage(null); // Ensure loading is stopped
       return;
     }
     setLoadingMessage(t.generatingDailyRecipe);
@@ -972,21 +1159,21 @@ export default function App() {
     const today = new Date().toDateString();
     const dailyRecipeDocRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/daily_recipe_cache`);
 
-    const docSnap = await getDoc(dailyRecipeDocRef);
-    if (docSnap.exists() && docSnap.data().lastDailyRecipeDate === today && docSnap.data().recipe) {
-      setDailyRecipe(docSnap.data().recipe);
-      setLastDailyRecipeDate(docSnap.data().lastDailyRecipeDate);
-      setLoadingMessage(null);
-      return;
-    }
-
-    const prompt = `Génère une recette du jour unique et appétissante. La recette doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Tiens compte de la préférence alimentaire : ${t[`dietary${dietaryPreference.charAt(0).toUpperCase() + dietaryPreference.slice(1)}`]}. Formatte la recette en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
-
-    const payload = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-    };
-
     try {
+      const docSnap = await getDoc(dailyRecipeDocRef);
+      if (docSnap.exists() && docSnap.data().lastDailyRecipeDate === today && docSnap.data().recipe) {
+        setDailyRecipe(docSnap.data().recipe);
+        setLastDailyRecipeDate(docSnap.data().lastDailyRecipeDate);
+        setLoadingMessage(null);
+        return;
+      }
+
+      const prompt = `Génère une recette du jour unique et appétissante. La recette doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Tiens compte de la préférence alimentaire : ${t[`dietary${dietaryPreference.charAt(0).toUpperCase() + dietaryPreference.slice(1)}`]}. Formatte la recette en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+      const payload = {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+      };
+
       const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
       setDailyRecipe(resultText);
       setLastDailyRecipeDate(today);
@@ -998,7 +1185,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized, t, appId]);
+  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized, t, appId, closeModal, showModal]);
 
 
   // --- LLM Adaptation Functions ---
@@ -1434,6 +1621,22 @@ export default function App() {
             >
               <Camera className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.uploadSectionTitle.split(' ')[0]}
             </motion.button>
+
+            {/* NEW: Ma Recette Actuelle button */}
+            {generatedRecipe && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setViewMode('recipe')}
+                className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
+                  ${viewMode === 'recipe' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
+                `}
+                aria-label={t.currentRecipe}
+              >
+                <BookOpenText className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.currentRecipe}
+              </motion.button>
+            )}
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -1461,7 +1664,8 @@ export default function App() {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setViewMode('dailyRecipe');
-                if (isAuthReady && db && userId) { // <-- Ajout de la vérification ici
+                // Ensure Firebase is ready before attempting to fetch daily recipe
+                if (isAuthReady && db && userId) {
                   fetchDailyRecipe();
                 } else {
                   showModal(t.firebaseNotInitialized, closeModal, closeModal);
@@ -1675,7 +1879,7 @@ export default function App() {
                       type="date"
                       placeholder={t.addExpiryDate}
                       value={newIngredientExpiry}
-                      onChange={(e) => handleUpdateIngredientExpiry(e.target.value)}
+                      onChange={(e) => setNewIngredientExpiry(e.target.value)} // Changed to setNewIngredientExpiry
                       className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
                       aria-label={t.addExpiryDate}
                     />
@@ -1819,7 +2023,7 @@ export default function App() {
                 </div>
               )}
 
-              {generatedRecipe && !loadingMessage && (
+              {generatedRecipe && !loadingMessage ? (
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1838,9 +2042,7 @@ export default function App() {
                     {copied ? t.copied : t.copyToClipboard}
                   </motion.button>
                 </motion.div>
-              )}
-
-              {!generatedRecipe && !loadingMessage && (
+              ) : (
                 <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                   <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
                   <p className="text-lg">{t.noIngredientsForRecipe}</p>
@@ -1863,7 +2065,7 @@ export default function App() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => resetAllStates()}
+                    onClick={() => setViewMode('upload')} // Changed to go back to upload view
                     className="px-6 py-3 rounded-lg text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
                     aria-label={t.newAnalysis}
                   >
@@ -2460,7 +2662,7 @@ export default function App() {
                                 return;
                               }
                               try {
-                                const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
+                                const docId = btoa(recipe.content.substring(0, Math.min(recipe.content.length, 200))).replace(/=/g, '').slice(0, 100);
                                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
                                   title: recipe.title,
                                   content: recipe.content,
@@ -2674,7 +2876,7 @@ export default function App() {
                                 return;
                               }
                               try {
-                                const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
+                                const docId = btoa(recipe.content.substring(0, Math.min(recipe.content.length, 200))).replace(/=/g, '').slice(0, 100);
                                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
                                   title: recipe.title,
                                   content: recipe.content,
@@ -2738,7 +2940,8 @@ export default function App() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  if (isAuthReady && db && userId) { // <-- Ajout de la vérification ici aussi
+                  // Ensure Firebase is ready before attempting to fetch daily recipe
+                  if (isAuthReady && db && userId) {
                     fetchDailyRecipe();
                   } else {
                     showModal(t.firebaseNotInitialized, closeModal, closeModal);
