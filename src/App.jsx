@@ -629,7 +629,7 @@ const translations = {
     firebaseNotInitialized: "Firebase not initialized. Some features may be limited.",
   },
   es: {
-    appTitle: "Mi Nevera Inteligente 🥦🥕",
+    appTitle: "Mi Nevera Inteligente 🥦�",
     uploadSectionTitle: "Añadir una foto de tu nevera",
     analyzeButton: "Analizar mi nevera con IA",
     analyzing: "Analizando...",
@@ -944,7 +944,7 @@ const translations = {
     filterByCuisine: "Filtra per cucina:",
     filterByTime: "Filtra per tempo:",
     filterByDifficulty: "Filtra per difficoltà:",
-    filterByDietary: "Filtra per dieta:",
+    filterByDietary: "Filtra per tipo di dieta:",
     filterByDishType: "Filtra per tipo di piatto:",
     clearFilters: "Cancella filtri",
     onboardingTitle: "Benvenuto su Il Mio Frigo Intelligente!",
@@ -1074,7 +1074,9 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
 
 // Helper function for Gemini API calls with exponential backoff
 const callGeminiApi = async (model, payload, retries = 3, delay = 1000) => {
-  const apiKey = ""; // Canvas will provide this at runtime
+  // Use __api_key if available from the environment, otherwise default to empty string for Canvas injection
+  // This is a workaround if the environment doesn't inject the API key automatically for fetch calls.
+  const apiKey = typeof __api_key !== 'undefined' ? __api_key : "";
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   for (let i = 0; i < retries; i++) {
@@ -1186,10 +1188,16 @@ export default function App() {
 
   // --- Firebase Authentication and Data Loading ---
   useEffect(() => {
+    // Check if Firebase is initialized based on the global variables
     if (!auth || !db) {
-      console.error(t.firebaseNotInitialized);
-      setIsAuthReady(true);
-      return;
+      console.warn(t.firebaseNotInitialized);
+      // If firebaseConfig is truly empty, we cannot initialize Firebase.
+      // Set auth ready to true so the UI can render, but features will be limited.
+      if (Object.keys(firebaseConfig).length === 0) {
+        setIsAuthReady(true);
+        setUserId(crypto.randomUUID()); // Provide a dummy userId for non-Firebase features
+        return;
+      }
     }
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -1206,77 +1214,84 @@ export default function App() {
           currentUserId = auth.currentUser.uid;
         } catch (error) {
           console.error("Firebase anonymous sign-in failed:", error);
-          currentUserId = crypto.randomUUID();
+          currentUserId = crypto.randomUUID(); // Fallback if auth fails
         }
       }
       setUserId(currentUserId);
       setIsAuthReady(true);
 
-      const userProfileRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/profile`);
-      const userDailyRecipeRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/daily_recipe_cache`);
+      // Only attempt Firestore operations if db is actually initialized
+      if (db) {
+        const userProfileRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/profile`);
+        const userDailyRecipeRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/daily_recipe_cache`);
 
-      const unsubscribeProfile = onSnapshot(userProfileRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setLanguage(data.language || 'fr');
-          setDarkMode(data.darkMode || false);
-          setDietaryPreference(data.dietaryPreference || 'none');
-          setCookingStreak(data.cookingStreak || 0);
-          setLastCookingLogDate(data.lastCookingLogDate || '');
-          setCuisineType(data.cuisineType || 'none');
-          setPreparationTime(data.preparationTime || 'none');
-          setDifficulty(data.difficulty || 'none');
-          setDishType(data.dishType || 'none');
-          setIsFirstTimeUser(data.isFirstTimeUser === undefined ? true : data.isFirstTimeUser);
-        } else {
-          setDoc(userProfileRef, {
-            language: 'fr',
-            darkMode: false,
-            dietaryPreference: 'none',
-            cookingStreak: 0,
-            lastCookingLogDate: '',
-            cuisineType: 'none',
-            preparationTime: 'none',
-            difficulty: 'none',
-            dishType: 'none',
-            isFirstTimeUser: true,
-          }, { merge: true }).catch(console.error);
-          setIsFirstTimeUser(true);
-        }
-      });
+        const unsubscribeProfile = onSnapshot(userProfileRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setLanguage(data.language || 'fr');
+            setDarkMode(data.darkMode || false);
+            setDietaryPreference(data.dietaryPreference || 'none');
+            setCookingStreak(data.cookingStreak || 0);
+            setLastCookingLogDate(data.lastCookingLogDate || '');
+            setCuisineType(data.cuisineType || 'none');
+            setPreparationTime(data.preparationTime || 'none');
+            setDifficulty(data.difficulty || 'none');
+            setDishType(data.dishType || 'none');
+            setIsFirstTimeUser(data.isFirstTimeUser === undefined ? true : data.isFirstTimeUser);
+          } else {
+            setDoc(userProfileRef, {
+              language: 'fr',
+              darkMode: false,
+              dietaryPreference: 'none',
+              cookingStreak: 0,
+              lastCookingLogDate: '',
+              cuisineType: 'none',
+              preparationTime: 'none',
+              difficulty: 'none',
+              dishType: 'none',
+              isFirstTimeUser: true,
+            }, { merge: true }).catch(console.error);
+            setIsFirstTimeUser(true);
+          }
+        });
 
-      const unsubscribeDailyRecipe = onSnapshot(userDailyRecipeRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setDailyRecipe(data.recipe || null);
-          setLastDailyRecipeDate(data.lastDailyRecipeDate || null);
-        }
-      });
+        const unsubscribeDailyRecipe = onSnapshot(userDailyRecipeRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setDailyRecipe(data.recipe || null);
+            setLastDailyRecipeDate(data.lastDailyRecipeDate || null);
+          }
+        });
 
-      const unsubscribeFavorites = onSnapshot(collection(db, `artifacts/${appId}/users/${currentUserId}/favorite_recipes`), (snapshot) => {
-        const favorites = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setFavoriteRecipes(favorites);
-      });
+        const unsubscribeFavorites = onSnapshot(collection(db, `artifacts/${appId}/users/${currentUserId}/favorite_recipes`), (snapshot) => {
+          const favorites = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setFavoriteRecipes(favorites);
+        });
 
-      const unsubscribeHistory = onSnapshot(collection(db, `artifacts/${appId}/users/${currentUserId}/generated_recipes_history`), (snapshot) => {
-        const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setGeneratedRecipesHistory(history);
-      });
+        const unsubscribeHistory = onSnapshot(collection(db, `artifacts/${appId}/users/${currentUserId}/generated_recipes_history`), (snapshot) => {
+          const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setGeneratedRecipesHistory(history);
+        });
 
-      return () => {
-        unsubscribeProfile();
-        unsubscribeDailyRecipe();
-        unsubscribeFavorites();
-        unsubscribeHistory();
-      };
+        return () => {
+          unsubscribeProfile();
+          unsubscribeDailyRecipe();
+          unsubscribeFavorites();
+          unsubscribeHistory();
+        };
+      }
     });
 
-    return () => unsubscribeAuth();
-  }, [t.firebaseNotInitialized]);
+    return () => {
+      if (auth && unsubscribeAuth) { // Only unsubscribe if auth was actually initialized
+        unsubscribeAuth();
+      }
+    };
+  }, [t.firebaseNotInitialized, firebaseConfig]); // Add firebaseConfig to dependencies
 
   // --- Persist user preferences to Firestore when they change ---
   useEffect(() => {
-    if (userId && isAuthReady && db) {
+    if (userId && isAuthReady && db) { // Only attempt if db is initialized
       const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`);
       setDoc(userProfileRef, {
         language,
@@ -1288,7 +1303,7 @@ export default function App() {
         dishType,
       }, { merge: true }).catch(console.error);
     }
-  }, [language, darkMode, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, userId, isAuthReady]);
+  }, [language, darkMode, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, userId, isAuthReady, db]);
 
   // --- Global state management functions ---
 
@@ -1372,7 +1387,7 @@ export default function App() {
   }, []);
 
   const handleOnboardingComplete = useCallback(() => {
-    if (userId && db) {
+    if (userId && db) { // Only attempt if db is initialized
       const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`);
       setDoc(userProfileRef, { isFirstTimeUser: false }, { merge: true }).catch(console.error);
     }
@@ -1409,8 +1424,9 @@ export default function App() {
     setGeneratedRecipe('');
     setDetectedIngredients([]);
 
-    // Extract base64 data from selectedImage (e.g., "data:image/png;base64,iVBORw...")
-    const base64ImageData = selectedImage.split(',')[1];
+    // Extract base64 data and mimeType from selectedImage (e.g., "data:image/png;base64,iVBORw...")
+    const [mimeTypeHeader, base64ImageData] = selectedImage.split(',');
+    const actualMimeType = mimeTypeHeader.split(':')[1].split(';')[0]; // e.g., "image/png" or "image/jpeg"
 
     const prompt = `List all food items and ingredients visible in this fridge image, focusing on raw ingredients and common pantry items. Provide a concise list, one item per line, without any additional text or formatting. For example:
 - Apple
@@ -1425,7 +1441,7 @@ export default function App() {
             { text: prompt },
             {
               inlineData: {
-                mimeType: "image/png", // Assuming PNG, adjust if needed based on actual image type
+                mimeType: actualMimeType, // Use the dynamically extracted mimeType
                 data: base64ImageData
               }
             }
@@ -1493,11 +1509,8 @@ export default function App() {
 
   const handleGenerateRecipe = useCallback(async () => {
     clearError();
-    if (!isAuthReady || !userId || !db) {
-      showModal(t.firebaseNotInitialized, closeModal, closeModal);
-      return;
-    }
-    if (detectedIngredients.length === 0) {
+    // Check if Firebase is available for saving history, but don't block recipe generation
+    if (!detectedIngredients.length === 0) {
       showModal(t.noIngredientsForRecipe, closeModal, closeModal);
       return;
     }
@@ -1547,27 +1560,30 @@ export default function App() {
       const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
       setGeneratedRecipe(resultText);
 
-      const historyCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`);
-      await addDoc(historyCollectionRef, {
-        title: resultText.substring(0, 50).split('\n')[0].trim() || t.recipeTitle,
-        content: resultText,
-        date: new Date().toISOString().slice(0, 10),
-        filters: { cuisineType, preparationTime, difficulty, dishType, dietaryPreference }
-      });
+      // Only attempt to save to Firestore if db is initialized
+      if (db && userId) {
+        const historyCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`);
+        await addDoc(historyCollectionRef, {
+          title: resultText.substring(0, 50).split('\n')[0].trim() || t.recipeTitle,
+          content: resultText,
+          date: new Date().toISOString().slice(0, 10),
+          filters: { cuisineType, preparationTime, difficulty, dishType, dietaryPreference }
+        });
+      }
 
     } catch (err) {
       handleError(t.errorGenerateRecipe, err);
     } finally {
       setLoadingMessage(null);
     }
-  }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, isAuthReady, userId, db, t.firebaseNotInitialized]);
+  }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, userId, db]);
 
   const isFavorite = useCallback((recipeContent) => {
     return favoriteRecipes.some(fav => fav.content === recipeContent);
   }, [favoriteRecipes]);
 
   const handleToggleFavorite = useCallback(async () => {
-    if (!isAuthReady || !userId || !db) {
+    if (!db || !userId) { // Check if db is initialized
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -1597,10 +1613,10 @@ export default function App() {
         handleError("Erreur lors de l'ajout aux favoris :", e);
       }
     }
-  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, isAuthReady, db, t.firebaseNotInitialized]);
+  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, db, t.firebaseNotInitialized]);
 
   const handleDeleteFavorite = useCallback(async (recipeIdToDelete) => {
-    if (!isAuthReady || !userId || !db) {
+    if (!db || !userId) { // Check if db is initialized
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -1613,7 +1629,7 @@ export default function App() {
         handleError("Erreur lors de la suppression du favori :", e);
       }
     }, closeModal, true);
-  }, [showModal, closeModal, handleError, t.confirmDeleteRecipe, t.recipeDeleted, userId, isAuthReady, db, t.firebaseNotInitialized]);
+  }, [showModal, closeModal, handleError, t.confirmDeleteRecipe, t.recipeDeleted, userId, db, t.firebaseNotInitialized]);
 
   const copyRecipeToClipboard = useCallback(() => {
     if (generatedRecipe) {
@@ -1631,7 +1647,7 @@ export default function App() {
   // --- Daily Recipe ---
   const fetchDailyRecipe = useCallback(async () => {
     clearError();
-    if (!isAuthReady || !userId || !db) {
+    if (!db || !userId) { // Check if db is initialized
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -1667,7 +1683,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, isAuthReady, db, t.firebaseNotInitialized]);
+  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized]);
 
 
   // --- LLM Adaptation Functions ---
@@ -1938,7 +1954,7 @@ export default function App() {
 
   // --- Global Data Management ---
   const handleClearAllData = useCallback(async () => {
-    if (!isAuthReady || !userId || !db) {
+    if (!db || !userId) { // Check if db is initialized
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -1979,13 +1995,13 @@ export default function App() {
         handleError("Erreur lors de l'effacement des données :", e);
       }
     }, closeModal, true);
-  }, [showModal, closeModal, resetAllStates, handleError, t.confirmClearAllData, t.dataCleared, userId, isAuthReady, db, t.firebaseNotInitialized]);
+  }, [showModal, closeModal, resetAllStates, handleError, t.confirmClearAllData, t.dataCleared, userId, db, t.firebaseNotInitialized]);
 
 
   // --- Cooking Streak Management ---
   const handleUploadMealPhoto = useCallback(async () => {
     clearError();
-    if (!isAuthReady || !userId || !db) {
+    if (!db || !userId) { // Check if db is initialized
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -2031,7 +2047,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, isAuthReady, db, t.firebaseNotInitialized]);
+  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, db, t.firebaseNotInitialized]);
 
 
   // --- Filtering logic for favorites and history ---
@@ -2291,7 +2307,7 @@ export default function App() {
                     type="date"
                     placeholder={t.addExpiryDate}
                     value={newIngredientExpiry}
-                    onChange={(e) => setNewIngredientExpiry(e.target.value)}
+                    onChange={(e) => handleUpdateIngredientExpiry(e.target.value)}
                     className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
                     aria-label={t.addExpiryDate}
                   />
@@ -2919,7 +2935,7 @@ export default function App() {
                       {!isFavorite(recipe.content) && (
                         <button
                           onClick={async () => {
-                            if (!isAuthReady || !userId || !db) {
+                            if (!db || !userId) { // Check if db is initialized
                               showModal(t.firebaseNotInitialized, closeModal, closeModal);
                               return;
                             }
@@ -3106,7 +3122,7 @@ export default function App() {
                       {!isFavorite(recipe.content) && (
                         <button
                           onClick={async () => {
-                            if (!isAuthReady || !userId || !db) {
+                            if (!db || !userId) { // Check if db is initialized
                               showModal(t.firebaseNotInitialized, closeModal, closeModal);
                               return;
                             }
