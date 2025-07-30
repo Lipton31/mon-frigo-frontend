@@ -94,7 +94,7 @@ const translations = {
     addToFavorites: "Ajouter aux Favoris",
     removeFromFavorites: "Retirer des Favoris",
     favorites: "Mes Favoris",
-    noFavorites: "Vous n'avez pas encore de recettes favorites. Commencez à en générer !",
+    noFavorites: "Vous n'avez pas encore de recettes favoris. Commencez à en générer !",
     recipeOfTheDay: "Recette du Jour",
     generatingDailyRecipe: "Génération de la recette du jour...",
     noDailyRecipe: "Aucune recette du jour disponible pour l'instant. Revenez demain ou générez la vôtre !",
@@ -231,7 +231,7 @@ const translations = {
     onboardingStep2Title: "2. Générez des recettes",
     onboardingStep2Desc: "À partir de vos ingrédients, nous vous proposerons des recettes créatives et personnalisées.",
     onboardingStep3Title: "3. Explorez et adaptez",
-    onboardingStep3Desc: "Sauvegardez vos recettes favorites, consultez votre historique et adaptez les recettes avec nos outils IA avancés.",
+    onboardingStep3Desc: "Sauvegardez vos recettes favoris, consultez votre historique et adaptez les recettes avec nos outils IA avancés.",
     onboardingButton: "C'est parti !",
     errorGeneric: "Une erreur inattendue est survenue. Veuillez vérifier votre connexion internet ou réessayer plus tard. Si le problème persiste, contactez le support.",
     analyzingImage: "Analyse de l'image...",
@@ -432,7 +432,7 @@ const translations = {
 };
 
 // Custom Modal component for messages and confirmations
-const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, currentLanguage }) => {
+const CustomModal = ({ message, onConfirm = null, onCancel, showConfirmButton = false, currentLanguage }) => {
   if (!message) return null;
 
   const t = translations[currentLanguage];
@@ -780,7 +780,7 @@ export default function App() {
         unsubscribeAuth();
       }
     };
-  }, [t.firebaseNotInitialized]); // Removed firebaseConfig from dependencies to avoid re-running on every render
+  }, [t.firebaseNotInitialized, db, auth]); // Added db and auth to dependencies to ensure effect re-runs if they change
 
   // --- Persist user preferences to Firestore when they change ---
   useEffect(() => {
@@ -832,7 +832,7 @@ export default function App() {
     setError(displayMessage);
     showModal(displayMessage, closeModal, closeModal);
     setLoadingMessage(null);
-  }, [showModal, closeModal, t.errorGeneric]);
+  }, [showModal, closeModal, t.errorGeneric, t]);
 
   const clearError = useCallback(() => {
     setError('');
@@ -961,7 +961,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [selectedImage, clearError, showModal, closeModal, handleError, t.errorNoImage, t.errorImageAnalysis, t.detectedSuccess, t.analyzingImage]);
+  }, [selectedImage, clearError, showModal, closeModal, handleError, t.errorNoImage, t.errorImageAnalysis, t.detectedSuccess, t.analyzingImage, t]);
 
   const handleAddIngredient = useCallback(() => {
     if (newIngredientInput.trim()) {
@@ -1106,7 +1106,7 @@ export default function App() {
         handleError("Erreur lors de l'ajout aux favoris :", e);
       }
     }
-  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, db, t.firebaseNotInitialized]);
+  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, db, t.firebaseNotInitialized, t]);
 
   const handleDeleteFavorite = useCallback(async (recipeIdToDelete) => {
     if (!db || !userId) { // Check if db is initialized
@@ -1140,7 +1140,7 @@ export default function App() {
   // --- Daily Recipe ---
   const fetchDailyRecipe = useCallback(async () => {
     clearError();
-    if (!db || !userId) { // Check if db is initialized
+    if (!db || !userId) { // This check is crucial and should ideally be handled before calling this function
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
@@ -1176,7 +1176,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized]);
+  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized, t]);
 
 
   // --- LLM Adaptation Functions ---
@@ -1213,7 +1213,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, adaptRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.adaptingRecipeDetailed]);
+  }, [generatedRecipe, adaptRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.adaptingRecipeDetailed, t]);
 
   const handleSubstituteIngredient = useCallback(async () => {
     clearError();
@@ -1248,7 +1248,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, ingredientToSubstitute, substituteWith, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToSubstitute, t.errorSubstituteIngredient, t.substitutingIngredientDetailed]);
+  }, [generatedRecipe, ingredientToSubstitute, substituteWith, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToSubstitute, t.errorSubstituteIngredient, t.substitutingIngredientDetailed, t]);
 
   const handleScaleRecipe = useCallback(async () => {
     clearError();
@@ -1282,7 +1282,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, scaleServings, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.scalingRecipeDetailed]);
+  }, [generatedRecipe, scaleServings, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.scalingRecipeDetailed, t]);
 
   const handleAskCookingTip = useCallback(async () => {
     clearError();
@@ -1314,7 +1314,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, cookingTipPrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeForTip, t.gettingTipDetailed]);
+  }, [generatedRecipe, cookingTipPrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeForTip, t.gettingTipDetailed, t]);
 
   const handleGenerateMealPrepGuide = useCallback(async () => {
     clearError();
@@ -1342,7 +1342,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, language, clearError, showModal, closeModal, handleError, t.noRecipeForMealPrep, t.generatingMealPrepGuideDetailed]);
+  }, [generatedRecipe, language, clearError, showModal, closeModal, handleError, t.noRecipeForMealPrep, t.generatingMealPrepGuideDetailed, t]);
 
   const handleGetFoodPairingSuggestions = useCallback(async () => {
     clearError();
@@ -1368,7 +1368,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [foodPairingQuery, language, clearError, showModal, closeModal, handleError, t.noFoodForPairing, t.gettingFoodPairingsDetailed]);
+  }, [foodPairingQuery, language, clearError, showModal, closeModal, handleError, t.noFoodForPairing, t.gettingFoodPairingsDetailed, t]);
 
   const handleGetIngredientInfo = useCallback(async () => {
     clearError();
@@ -1408,7 +1408,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [ingredientInfoQuery, language, clearError, showModal, closeModal, handleError, t.noIngredientForInfo, t.gettingIngredientInfoDetailed]);
+  }, [ingredientInfoQuery, language, clearError, showModal, closeModal, handleError, t.noIngredientForInfo, t.gettingIngredientInfoDetailed, t]);
 
   const handleOptimizeRecipeHealth = useCallback(async () => {
     clearError();
@@ -1442,7 +1442,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [generatedRecipe, optimizeRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToOptimize, t.errorOptimizeRecipe, t.optimizingRecipeDetailed]);
+  }, [generatedRecipe, optimizeRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToOptimize, t.errorOptimizeRecipe, t.optimizingRecipeDetailed, t]);
 
 
   // --- Global Data Management ---
@@ -1540,7 +1540,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, db, t.firebaseNotInitialized]);
+  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, db, t.firebaseNotInitialized, t]);
 
 
   // --- Filtering logic for favorites and history ---
@@ -1637,7 +1637,14 @@ export default function App() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { setViewMode('dailyRecipe'); fetchDailyRecipe(); }}
+              onClick={() => {
+                setViewMode('dailyRecipe');
+                if (isAuthReady && db && userId) { // <-- Ajout de la vérification ici
+                  fetchDailyRecipe();
+                } else {
+                  showModal(t.firebaseNotInitialized, closeModal, closeModal);
+                }
+              }}
               className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
                 ${viewMode === 'dailyRecipe' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
               `}
@@ -2621,15 +2628,34 @@ export default function App() {
                         >
                           {t.viewRecipe}
                         </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.25 }}
-                          whileTap={{ scale: 0.75 }}
-                          onClick={() => handleDeleteFavorite(recipe.id)}
-                          className="text-red-500 hover:text-red-700 transition-colors duration-300 ml-4 rounded-full p-1"
-                          aria-label={t.removeFromFavorites}
-                        >
-                          <X className="w-5 h-5" aria-hidden="true" />
-                        </motion.button>
+                        {!isFavorite(recipe.content) && (
+                          <motion.button
+                            whileHover={{ scale: 1.25 }}
+                            whileTap={{ scale: 0.75 }}
+                            onClick={async () => {
+                              if (!db || !userId) { // Check if db is initialized
+                                showModal(t.firebaseNotInitialized, closeModal, closeModal);
+                                return;
+                              }
+                              try {
+                                const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
+                                await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
+                                  title: recipe.title,
+                                  content: recipe.content,
+                                  date: recipe.date,
+                                  filters: recipe.filters
+                                }, { merge: true });
+                                showModal(`${t.addToFavorites} !`, closeModal, closeModal);
+                              } catch (e) {
+                                handleError("Erreur lors de l'ajout aux favoris :", e);
+                              }
+                            }}
+                            className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 rounded-full p-1"
+                            aria-label={t.addToFavorites}
+                          >
+                            <Heart className="w-5 h-5" aria-hidden="true" />
+                          </motion.button>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -2889,7 +2915,13 @@ export default function App() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => fetchDailyRecipe()}
+                onClick={() => {
+                  if (isAuthReady && db && userId) { // <-- Ajout de la vérification ici aussi
+                    fetchDailyRecipe();
+                  } else {
+                    showModal(t.firebaseNotInitialized, closeModal, closeModal);
+                  }
+                }}
                 className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                 disabled={!!loadingMessage}
                 aria-label={loadingMessage ? loadingMessage : t.recipeOfTheDay}
