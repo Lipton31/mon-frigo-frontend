@@ -3,8 +3,8 @@ import {
   Camera, Utensils, Sun, Heart, Settings, Flame, Eye, Info, X, ChevronDown, CheckCircle,
   BookOpenText, CalendarOff, Clipboard, Loader2, Lightbulb, Salad, Apple, FlaskConical,
   ChefHat, Search, Eraser, PlusCircle, Package, Clock, TrendingUp, TrendingDown, History,
-  Sparkles, User // Nouvelle icône pour l'onboarding et l'utilisateur
-} from 'lucide-react'; // Import d'icônes enrichi
+  Sparkles, User
+} from 'lucide-react';
 
 // Firebase Imports
 import { initializeApp } from 'firebase/app';
@@ -35,9 +35,7 @@ try {
 }
 
 
-// --- Styles CSS personnalisés pour les animations ---
-// Ces styles sont intégrés directement dans le composant pour la démonstration.
-// Dans une application plus grande, ils seraient dans un fichier CSS séparé.
+// --- Custom CSS Animations ---
 const customAnimations = `
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -72,7 +70,7 @@ const customAnimations = `
 }
 
 .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-.animate-fadeInUp { animation: fadeInUp 0.0s ease-out forwards; } /* Durée réduite pour une transition rapide */
+.animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
 .animate-popIn { animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
 .animate-pulse-glow { animation: pulseGlow 1.5s infinite; }
 .animate-shimmer {
@@ -88,11 +86,10 @@ const customAnimations = `
 `;
 
 
-// --- Gestion des traductions ---
-// Centralise tous les textes de l'interface pour faciliter la gestion multilingue
+// --- Translation Management ---
 const translations = {
   fr: {
-    appTitle: "Mon Frigo Malin 🥦�",
+    appTitle: "Mon Frigo Malin 🥦🥕",
     uploadSectionTitle: "Ajouter une photo de votre frigo",
     analyzeButton: "Analyser mon frigo avec l'IA",
     analyzing: "Analyse en cours...",
@@ -102,8 +99,8 @@ const translations = {
     placeholderIngredients: "Nom de l'ingrédient",
     addIngredient: "Ajouter",
     addExpiryDate: "Date de péremption (JJ/MM/AAAA)",
-    addQuantity: "Quantité", // Nouveau
-    addUnit: "Unité", // Nouveau
+    addQuantity: "Quantité",
+    addUnit: "Unité",
     generateRecipeButton: "Générer une recette",
     generatingRecipe: "Génération de recette...",
     errorDetectIngredients: "Impossible de détecter les ingrédients. Veuillez réessayer.",
@@ -199,7 +196,7 @@ const translations = {
     dietaryKosher: "Casher",
     copyToClipboard: "Copier la recette",
     copied: "Copié !",
-    unitNone: "Aucune", // Nouvelle unité
+    unitNone: "Aucune",
     unitUnits: "unités",
     unitGrams: "grammes",
     unitKilograms: "kilogrammes",
@@ -207,7 +204,7 @@ const translations = {
     unitLiters: "litres",
     unitCups: "tasses",
     unitSpoons: "cuillères",
-    cuisineType: "Type de cuisine :", // Nouveau filtre
+    cuisineType: "Type de cuisine :",
     cuisineNone: "Aucun",
     cuisineFrench: "Française",
     cuisineItalian: "Italienne",
@@ -217,17 +214,17 @@ const translations = {
     cuisineMediterranean: "Méditerranéenne",
     cuisineAmerican: "Américaine",
     cuisineOther: "Autre",
-    prepTime: "Temps de préparation :", // Nouveau filtre
+    prepTime: "Temps de préparation :",
     timeNone: "Aucun",
     timeQuick: "Moins de 30 min",
     timeMedium: "30-60 min",
     timeLong: "Plus de 60 min",
-    difficulty: "Difficulté :", // Nouveau filtre
+    difficulty: "Difficulté :",
     difficultyNone: "Aucune",
     difficultyEasy: "Facile",
     difficultyMedium: "Moyenne",
     difficultyHard: "Difficile",
-    dishType: "Type de plat :", // Nouveau filtre
+    dishType: "Type de plat :",
     dishTypeNone: "Aucun",
     dishTypeMain: "Plat principal",
     dishTypeDessert: "Dessert",
@@ -237,7 +234,7 @@ const translations = {
     dishTypeSoup: "Soupe",
     dishTypeSalad: "Salade",
     dishTypeDrink: "Boisson",
-    optimizingImage: "Optimisation de l'image...", // Nouveau message
+    optimizingImage: "Optimisation de l'image...",
     history: "Mon Historique",
     noHistory: "Aucune recette n'a encore été générée. Commencez par en créer une !",
     searchRecipes: "Rechercher des recettes...",
@@ -306,7 +303,7 @@ const translations = {
     languageEnglish: "English",
     languageGerman: "German",
     languageSpanish: "Spanish",
-    languageItalian: "Italian",
+    languageItalian: "Italiano",
     detectedSuccess: "Ingredients detected successfully!",
     confirmDelete: "Confirm Deletion",
     confirmDeleteRecipe: "Are you sure you want to delete this recipe from your favorites?",
@@ -378,7 +375,7 @@ const translations = {
     dietaryHalal: "Halal",
     dietaryKosher: "Kosher",
     copyToClipboard: "Copy Recipe",
-    copied: "Copié!",
+    copied: "Copied!",
     unitNone: "None",
     unitUnits: "units",
     unitGrams: "grams",
@@ -976,7 +973,7 @@ const translations = {
   }
 };
 
-// Composant Modal personnalisé pour les messages et confirmations
+// Custom Modal component for messages and confirmations
 const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, currentLanguage }) => {
   if (!message) return null;
 
@@ -1019,7 +1016,7 @@ const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, 
   );
 };
 
-// Nouveau composant SkeletonLoader pour améliorer l'expérience de chargement
+// SkeletonLoader component for improved loading experience
 const SkeletonLoader = ({ lines = 5, className = "" }) => (
   <div className={`space-y-3 ${className}`}>
     <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4 animate-shimmer"></div>
@@ -1029,12 +1026,12 @@ const SkeletonLoader = ({ lines = 5, className = "" }) => (
   </div>
 );
 
-// Composant pour le spinner de chargement
+// Loading spinner component
 const LoadingSpinner = () => (
   <Loader2 className="w-5 h-5 animate-spin text-white" />
 );
 
-// Composant OnboardingModal
+// OnboardingModal component
 const OnboardingModal = ({ onClose, currentLanguage }) => {
   const t = translations[currentLanguage];
   return (
@@ -1075,45 +1072,86 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
   );
 };
 
+// Helper function for Gemini API calls with exponential backoff
+const callGeminiApi = async (model, payload, retries = 3, delay = 1000) => {
+  const apiKey = ""; // Canvas will provide this at runtime
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429 || response.status >= 500) {
+          console.warn(`Attempt ${i + 1} failed with status ${response.status}. Retrying in ${delay / 1000}s...`);
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+          continue;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || response.statusText);
+      }
+
+      const result = await response.json();
+      if (result.candidates && result.candidates.length > 0 &&
+          result.candidates[0].content && result.candidates[0].content.parts &&
+          result.candidates[0].content.parts.length > 0) {
+        return result.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Invalid API response structure or no content.");
+      }
+    } catch (error) {
+      if (i === retries - 1) {
+        throw error;
+      }
+      console.error(`Error on attempt ${i + 1}:`, error.message);
+      await new Promise(res => setTimeout(res, delay));
+      delay *= 2;
+    }
+  }
+  throw new Error("Max retries exceeded.");
+};
+
 
 export default function App() {
   const [userId, setUserId] = useState(null);
-  const [isAuthReady, setIsAuthReady] = useState(false); // To ensure Firestore operations wait for auth
-  const [selectedImage, setSelectedImage] = useState(null); // Stores image in base64
-  // Mise à jour de la structure de l'état des ingrédients pour inclure quantité et unité
-  const [detectedIngredients, setDetectedIngredients] = useState([]); // Array of { name: string, quantity: number, unit: string, expiryDate?: string }
-  const [newIngredientInput, setNewIngredientInput] = useState(''); // For manual ingredient input
-  const [newIngredientExpiry, setNewIngredientExpiry] = useState(''); // For manual ingredient expiry date
-  const [newIngredientQuantity, setNewIngredientQuantity] = useState(''); // Nouveau: Quantité pour la saisie manuelle
-  const [newIngredientUnit, setNewIngredientUnit] = useState('unit'); // Nouveau: Unité pour la saisie manuelle (valeur par défaut 'unit')
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [detectedIngredients, setDetectedIngredients] = useState([]);
+  const [newIngredientInput, setNewIngredientInput] = useState('');
+  const [newIngredientExpiry, setNewIngredientExpiry] = useState('');
+  const [newIngredientQuantity, setNewIngredientQuantity] = useState('');
+  const [newIngredientUnit, setNewIngredientUnit] = useState('unit');
 
-  const [generatedRecipe, setGeneratedRecipe] = useState(''); // Recipe generated by AI
-  const [loadingMessage, setLoadingMessage] = useState(null); // String for detailed loading messages
-  const [error, setError] = useState(''); // Error message
-  const [viewMode, setViewMode] = useState('upload'); // 'upload', 'recipe', 'favorites', 'dailyRecipe', 'settings', 'history'
-  const [modalMessage, setModalMessage] = useState(''); // Message for the modal
+  const [generatedRecipe, setGeneratedRecipe] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState(null);
+  const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState('upload');
+  const [modalMessage, setModalMessage] = useState('');
   const [modalOnConfirm, setModalOnConfirm] = useState(null);
   const [modalOnCancel, setModalOnCancel] = useState(null);
   const [showModalConfirmButton, setShowModalConfirmButton] = useState(false);
-  const [favoriteRecipes, setFavoriteRecipes] = useState([]); // Stores favorite recipes
-  const [generatedRecipesHistory, setGeneratedRecipesHistory] = useState([]); // Stores all generated recipes
-  const [dailyRecipe, setDailyRecipe] = useState(null); // Stores the daily recipe
-  const [lastDailyRecipeDate, setLastDailyRecipeDate] = useState(null); // Date when daily recipe was last generated
-  const [language, setLanguage] = useState('fr'); // Default language is French, loaded from Firestore
-  const [darkMode, setDarkMode] = useState(false); // Dark mode state, loaded from Firestore
-  const [dietaryPreference, setDietaryPreference] = useState('none'); // Dietary preference state, loaded from Firestore
-  const [cookingStreak, setCookingStreak] = useState(0); // Loaded from Firestore
-  const [lastCookingLogDate, setLastCookingLogDate] = useState(''); // Loaded from Firestore
-  const [copied, setCopied] = useState(false); // State for copy to clipboard feedback
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true); // Onboarding state
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [generatedRecipesHistory, setGeneratedRecipesHistory] = useState([]);
+  const [dailyRecipe, setDailyRecipe] = useState(null);
+  const [lastDailyRecipeDate, setLastDailyRecipeDate] = useState(null);
+  const [language, setLanguage] = useState('fr');
+  const [darkMode, setDarkMode] = useState(false);
+  const [dietaryPreference, setDietaryPreference] = useState('none');
+  const [cookingStreak, setCookingStreak] = useState(0);
+  const [lastCookingLogDate, setLastCookingLogDate] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
 
-  // Nouveaux états pour les filtres granulaires
   const [cuisineType, setCuisineType] = useState('none');
   const [preparationTime, setPreparationTime] = useState('none');
   const [difficulty, setDifficulty] = useState('none');
   const [dishType, setDishType] = useState('none');
 
-  // Filtres pour les favoris et l'historique
   const [favoriteSearchTerm, setFavoriteSearchTerm] = useState('');
   const [favoriteCuisineFilter, setFavoriteCuisineFilter] = useState('none');
   const [favoriteTimeFilter, setFavoriteTimeFilter] = useState('none');
@@ -1122,12 +1160,10 @@ export default function App() {
   const [favoriteDishTypeFilter, setFavoriteDishTypeFilter] = useState('none');
 
 
-  const fileInputRef = useRef(null); // Ref for hidden file input
+  const fileInputRef = useRef(null);
 
-  // Use useMemo to ensure t is only computed when language changes
   const t = useMemo(() => translations[language], [language]);
 
-  // States for new LLM features
   const [showAdaptRecipeInput, setShowAdaptRecipeInput] = useState(false);
   const [adaptRecipePrompt, setAdaptRecipePrompt] = useState('');
   const [showSubstituteIngredientInput, setShowSubstituteIngredientInput] = useState(false);
@@ -1137,22 +1173,22 @@ export default function App() {
   const [scaleServings, setScaleServings] = useState('');
   const [showCookingTipInput, setShowCookingTipInput] = useState(false);
   const [cookingTipPrompt, setCookingTipPrompt] = useState('');
-  const [cookingTipResult, setCookingTipResult] = '';
+  const [cookingTipResult, setCookingTipResult] = useState(''); // Initialize with empty string
   const [showFoodPairingInput, setShowFoodPairingInput] = useState(false);
   const [foodPairingQuery, setFoodPairingQuery] = useState('');
-  const [foodPairingResult, setFoodPairingResult] = '';
+  const [foodPairingResult, setFoodPairingResult] = useState(''); // Initialize with empty string
   const [showOptimizeRecipeInput, setShowOptimizeRecipeInput] = useState(false);
   const [optimizeRecipePrompt, setOptimizeRecipePrompt] = useState('');
   const [showIngredientInfoInput, setShowIngredientInfoInput] = useState(false);
   const [ingredientInfoQuery, setIngredientInfoQuery] = useState('');
-  const [ingredientInfoResult, setIngredientInfoResult] = '';
+  const [ingredientInfoResult, setIngredientInfoResult] = useState(''); // Initialize with empty string
 
 
   // --- Firebase Authentication and Data Loading ---
   useEffect(() => {
     if (!auth || !db) {
       console.error(t.firebaseNotInitialized);
-      setIsAuthReady(true); // Allow app to render even if Firebase is not available
+      setIsAuthReady(true);
       return;
     }
 
@@ -1161,7 +1197,6 @@ export default function App() {
       if (user) {
         currentUserId = user.uid;
       } else {
-        // Sign in anonymously if no user is authenticated
         try {
           if (initialAuthToken) {
             await signInWithCustomToken(auth, initialAuthToken);
@@ -1171,13 +1206,12 @@ export default function App() {
           currentUserId = auth.currentUser.uid;
         } catch (error) {
           console.error("Firebase anonymous sign-in failed:", error);
-          currentUserId = crypto.randomUUID(); // Fallback to a random ID if auth fails
+          currentUserId = crypto.randomUUID();
         }
       }
       setUserId(currentUserId);
-      setIsAuthReady(true); // Mark auth as ready
+      setIsAuthReady(true);
 
-      // Load user preferences and data from Firestore
       const userProfileRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/profile`);
       const userDailyRecipeRef = doc(db, `artifacts/${appId}/users/${currentUserId}/user_data/daily_recipe_cache`);
 
@@ -1195,7 +1229,6 @@ export default function App() {
           setDishType(data.dishType || 'none');
           setIsFirstTimeUser(data.isFirstTimeUser === undefined ? true : data.isFirstTimeUser);
         } else {
-          // If no profile exists, set initial defaults and mark as first-time user
           setDoc(userProfileRef, {
             language: 'fr',
             darkMode: false,
@@ -1206,7 +1239,7 @@ export default function App() {
             preparationTime: 'none',
             difficulty: 'none',
             dishType: 'none',
-            isFirstTimeUser: true, // Mark as first time
+            isFirstTimeUser: true,
           }, { merge: true }).catch(console.error);
           setIsFirstTimeUser(true);
         }
@@ -1239,13 +1272,12 @@ export default function App() {
     });
 
     return () => unsubscribeAuth();
-  }, [t.firebaseNotInitialized]); // Depend on translation for error message
+  }, [t.firebaseNotInitialized]);
 
   // --- Persist user preferences to Firestore when they change ---
   useEffect(() => {
     if (userId && isAuthReady && db) {
       const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`);
-      // Use setDoc with merge: true to ensure the document is created if it doesn't exist
       setDoc(userProfileRef, {
         language,
         darkMode,
@@ -1258,11 +1290,11 @@ export default function App() {
     }
   }, [language, darkMode, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, userId, isAuthReady]);
 
-  // --- Fonctions de gestion de l'état global ---
+  // --- Global state management functions ---
 
   const showModal = useCallback((message, onConfirm = null, onCancel = null, showConfirmButton = false) => {
     setModalMessage(message);
-    setModalOnConfirm(() => onConfirm); // Use a function to set the state
+    setModalOnConfirm(() => onConfirm);
     setModalOnCancel(() => onCancel);
     setShowModalConfirmButton(showConfirmButton);
   }, []);
@@ -1276,12 +1308,11 @@ export default function App() {
 
   const handleError = useCallback((msg, err) => {
     console.error(msg, err);
-    // More user-friendly error messages
     let displayMessage = msg;
     if (err && err.message) {
       if (err.message.includes('Failed to fetch')) {
         displayMessage = `${msg} Veuillez vérifier votre connexion internet.`;
-      } else if (err.message.includes('quota')) { // Example for quota exceeded
+      } else if (err.message.includes('quota')) {
         displayMessage = `${msg} Quota de l'API dépassé. Veuillez réessayer plus tard.`;
       } else {
         displayMessage = `${msg} ${err.message}`;
@@ -1292,7 +1323,7 @@ export default function App() {
 
     setError(displayMessage);
     showModal(displayMessage, closeModal, closeModal);
-    setLoadingMessage(null); // Clear loading message on error
+    setLoadingMessage(null);
   }, [showModal, closeModal, t.errorGeneric]);
 
   const clearError = useCallback(() => {
@@ -1304,10 +1335,10 @@ export default function App() {
     setDetectedIngredients([]);
     setNewIngredientInput('');
     setNewIngredientExpiry('');
-    setNewIngredientQuantity(''); // Réinitialise la quantité
-    setNewIngredientUnit('unit'); // Réinitialise l'unité
+    setNewIngredientQuantity('');
+    setNewIngredientUnit('unit');
     setGeneratedRecipe('');
-    setLoadingMessage(null); // Reset loading message
+    setLoadingMessage(null);
     setError('');
     setViewMode('upload');
     setModalMessage('');
@@ -1332,13 +1363,6 @@ export default function App() {
     setShowIngredientInfoInput(false);
     setIngredientInfoQuery('');
     setIngredientInfoResult('');
-    // Réinitialise les filtres
-    // These are now synced from Firestore, so no need to reset locally
-    // setCuisineType('none');
-    // setPreparationTime('none');
-    // setDifficulty('none');
-    // setDishType('none');
-    // Réinitialise les filtres de favoris/historique
     setFavoriteSearchTerm('');
     setFavoriteCuisineFilter('none');
     setFavoriteTimeFilter('none');
@@ -1350,26 +1374,20 @@ export default function App() {
   const handleOnboardingComplete = useCallback(() => {
     if (userId && db) {
       const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`);
-      setDoc(userProfileRef, { isFirstTimeUser: false }, { merge: true }).catch(console.error); // Use setDoc with merge
+      setDoc(userProfileRef, { isFirstTimeUser: false }, { merge: true }).catch(console.error);
     }
     setIsFirstTimeUser(false);
   }, [userId, db]);
 
-  // --- Gestion de l'image et de la détection des ingrédients ---
+  // --- Image handling and ingredient detection ---
 
   const handleImageUpload = useCallback((event) => {
     clearError();
     const file = event.target.files[0];
     if (file) {
-      // NOTE: L'optimisation d'image lourde (redimensionnement, compression avancée)
-      // devrait idéalement être gérée côté backend pour les très grandes images
-      // afin de réduire la charge sur le client et le temps de transfert vers l'API Gemini.
-      // Ici, nous lisons simplement le fichier en base64.
-      // Si des tâches gourmandes en calcul côté client devaient être ajoutées (ex: filtres d'image complexes),
-      // un Web Worker serait approprié pour ne pas bloquer le thread principal de l'interface utilisateur.
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedImage(reader.result); // Stocke l'image en base64
+        setSelectedImage(reader.result);
       };
       reader.onerror = () => {
         showModal(t.errorImageRead, closeModal, closeModal);
@@ -1387,60 +1405,67 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.analyzingImage); // Detailed loading message
-    setGeneratedRecipe(''); // Clear previous recipe
-    setDetectedIngredients([]); // Clear previous ingredients
+    setLoadingMessage(t.analyzingImage);
+    setGeneratedRecipe('');
+    setDetectedIngredients([]);
 
-    // Le backend est censé gérer l'optimisation de l'image (redimensionnement, compression)
-    // avant de l'envoyer à l'API Gemini.
-    const payload = { image: selectedImage, language, dietaryPreference };
-    console.log('Sending analyze-image request to:', 'http://localhost:3001/api/analyze-image');
-    console.log('Payload:', payload);
+    // Extract base64 data from selectedImage (e.g., "data:image/png;base64,iVBORw...")
+    const base64ImageData = selectedImage.split(',')[1];
+
+    const prompt = `List all food items and ingredients visible in this fridge image, focusing on raw ingredients and common pantry items. Provide a concise list, one item per line, without any additional text or formatting. For example:
+- Apple
+- Carrot
+- Milk`;
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: "image/png", // Assuming PNG, adjust if needed based on actual image type
+                data: base64ImageData
+              }
+            }
+          ]
+        }
+      ],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/analyze-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Analyze-image response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Analyze-image error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Analyze-image response data:', data);
-      // Lorsque l'IA détecte des ingrédients, initialisez quantité et unité par défaut
-      const ingredientsArray = data.ingredients.map(ing => ({
-        name: ing.trim(),
-        quantity: 1, // Valeur par défaut
-        unit: 'unit', // Valeur par défaut
-        expiryDate: ''
-      }));
-      setDetectedIngredients(ingredientsArray.filter(ing => ing.name));
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      const ingredientsArray = resultText.split('\n')
+        .map(line => line.replace(/^- /, '').trim())
+        .filter(name => name)
+        .map(name => ({
+          name: name,
+          quantity: 1,
+          unit: 'unit',
+          expiryDate: ''
+        }));
+      setDetectedIngredients(ingredientsArray);
       showModal(t.detectedSuccess, closeModal, closeModal);
     } catch (err) {
       handleError(t.errorImageAnalysis, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [selectedImage, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.errorNoImage, t.errorImageAnalysis, t.detectedSuccess, t.analyzingImage]);
+  }, [selectedImage, clearError, showModal, closeModal, handleError, t.errorNoImage, t.errorImageAnalysis, t.detectedSuccess, t.analyzingImage]);
 
   const handleAddIngredient = useCallback(() => {
     if (newIngredientInput.trim()) {
       setDetectedIngredients(prev => [...prev, {
         name: newIngredientInput.trim(),
-        quantity: newIngredientQuantity ? parseFloat(newIngredientQuantity) : 1, // Parse float for quantity
+        quantity: newIngredientQuantity ? parseFloat(newIngredientQuantity) : 1,
         unit: newIngredientUnit,
         expiryDate: newIngredientExpiry
       }]);
       setNewIngredientInput('');
       setNewIngredientExpiry('');
-      setNewIngredientQuantity(''); // Réinitialise la quantité
-      setNewIngredientUnit('unit'); // Réinitialise l'unité
+      setNewIngredientQuantity('');
+      setNewIngredientUnit('unit');
     }
   }, [newIngredientInput, newIngredientExpiry, newIngredientQuantity, newIngredientUnit]);
 
@@ -1464,7 +1489,7 @@ export default function App() {
     setDetectedIngredients(prev => prev.map((ing, i) => i === index ? { ...ing, expiryDate: newDate } : ing));
   }, []);
 
-  // --- Génération et gestion des recettes ---
+  // --- Recipe generation and management ---
 
   const handleGenerateRecipe = useCallback(async () => {
     clearError();
@@ -1477,17 +1502,16 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.generatingRecipeDetailed); // Detailed loading message
-    setGeneratedRecipe(''); // Clear previous recipe
-    setViewMode('recipe'); // Switch to recipe view
+    setLoadingMessage(t.generatingRecipeDetailed);
+    setGeneratedRecipe('');
+    setViewMode('recipe');
 
-    // Formate les ingrédients pour l'API en incluant quantité et unité
     const ingredientsString = detectedIngredients.map(ing => {
       let ingredientText = ing.name;
       if (ing.quantity && ing.quantity > 0) {
         ingredientText = `${ing.quantity} ${t[`unit${ing.unit.charAt(0).toUpperCase() + ing.unit.slice(1)}`] || ing.unit} de ${ing.name}`;
       } else {
-        ingredientText = ing.name; // Si pas de quantité, juste le nom
+        ingredientText = ing.name;
       }
       if (ing.expiryDate) {
         ingredientText += ` (expire le ${ing.expiryDate})`;
@@ -1495,7 +1519,6 @@ export default function App() {
       return ingredientText;
     }).join(', ');
 
-    // Construire le prompt avec les filtres
     let prompt = `Génère une recette détaillée et appétissante en utilisant les ingrédients suivants : ${ingredientsString}.`;
 
     if (dietaryPreference && dietaryPreference !== 'none') {
@@ -1514,35 +1537,20 @@ export default function App() {
       prompt += ` Le type de plat est : ${t[`dishType${dishType.charAt(0).toUpperCase() + dishType.slice(1)}`]}.`;
     }
 
-    prompt += ` La recette doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}.`;
+    prompt += ` La recette doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la recette en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
 
-    const payload = { ingredients: ingredientsString, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, prompt };
-    console.log('Sending generate-recipe request to:', 'http://localhost:3001/api/generate-recipe');
-    console.log('Payload:', payload);
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/generate-recipe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload), // Passer le prompt complet
-      });
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText);
 
-      console.log('Generate-recipe response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Generate-recipe error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Generate-recipe response data:', data);
-      setGeneratedRecipe(data.recipe);
-
-      // Ajouter la recette générée à l'historique dans Firestore
       const historyCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`);
       await addDoc(historyCollectionRef, {
-        title: data.recipe.substring(0, 50).split('\n')[0].trim() || t.recipeTitle,
-        content: data.recipe,
+        title: resultText.substring(0, 50).split('\n')[0].trim() || t.recipeTitle,
+        content: resultText,
         date: new Date().toISOString().slice(0, 10),
         filters: { cuisineType, preparationTime, difficulty, dishType, dietaryPreference }
       });
@@ -1550,7 +1558,7 @@ export default function App() {
     } catch (err) {
       handleError(t.errorGenerateRecipe, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
   }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, isAuthReady, userId, db, t.firebaseNotInitialized]);
 
@@ -1565,10 +1573,7 @@ export default function App() {
     }
     if (!generatedRecipe) return;
 
-    // Use a more robust ID for the favorite recipe document
-    // For simplicity, using a hash or a part of the content might be better for uniqueness
-    // For a real app, you might generate a UUID or use a server-generated ID
-    const docId = btoa(generatedRecipe.substring(0, 100)).replace(/=/g, ''); // Base64 encode first 100 chars and remove padding
+    const docId = btoa(generatedRecipe.substring(0, 100)).replace(/=/g, '');
     const favoriteRecipeRef = doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId);
 
     if (isFavorite(generatedRecipe)) {
@@ -1579,7 +1584,6 @@ export default function App() {
         handleError("Erreur lors de la suppression du favori :", e);
       }
     } else {
-      // Trouver l'entrée correspondante dans l'historique pour récupérer les filtres
       const historyEntry = generatedRecipesHistory.find(entry => entry.content === generatedRecipe);
       try {
         await setDoc(favoriteRecipeRef, {
@@ -1614,73 +1618,59 @@ export default function App() {
   const copyRecipeToClipboard = useCallback(() => {
     if (generatedRecipe) {
       const tempTextArea = document.createElement('textarea');
-      tempTextArea.value = generatedRecipe.replace(/<[^>]*>/g, ''); // Remove HTML tags
+      tempTextArea.value = generatedRecipe.replace(/<[^>]*>/g, '');
       document.body.appendChild(tempTextArea);
       tempTextArea.select();
       document.execCommand('copy');
       document.body.removeChild(tempTextArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
     }
   }, [generatedRecipe]);
 
-  // --- Recette du jour ---
+  // --- Daily Recipe ---
   const fetchDailyRecipe = useCallback(async () => {
     clearError();
     if (!isAuthReady || !userId || !db) {
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
       return;
     }
-    setLoadingMessage(t.generatingDailyRecipe); // Detailed loading message
-    setDailyRecipe(null); // Clear previous daily recipe
+    setLoadingMessage(t.generatingDailyRecipe);
+    setDailyRecipe(null);
 
     const today = new Date().toDateString();
     const dailyRecipeDocRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/daily_recipe_cache`);
 
-    // Check if daily recipe was already fetched today from Firestore
     const docSnap = await getDoc(dailyRecipeDocRef);
     if (docSnap.exists() && docSnap.data().lastDailyRecipeDate === today && docSnap.data().recipe) {
       setDailyRecipe(docSnap.data().recipe);
       setLastDailyRecipeDate(docSnap.data().lastDailyRecipeDate);
       setLoadingMessage(null);
-      return; // Already fetched today, use cached
+      return;
     }
 
-    const payload = { language, dietaryPreference };
-    console.log('Sending daily-recipe request to:', 'http://localhost:3001/api/daily-recipe');
-    console.log('Payload:', payload);
+    const prompt = `Génère une recette du jour unique et appétissante. La recette doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Tiens compte de la préférence alimentaire : ${t[`dietary${dietaryPreference.charAt(0).toUpperCase() + dietaryPreference.slice(1)}`]}. Formatte la recette en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/daily-recipe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Daily-recipe response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Daily-recipe error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Daily-recipe response data:', data);
-      setDailyRecipe(data.recipe);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setDailyRecipe(resultText);
       setLastDailyRecipeDate(today);
 
-      // Save to Firestore cache
-      await setDoc(dailyRecipeDocRef, { recipe: data.recipe, lastDailyRecipeDate: today }, { merge: true }); // Use setDoc with merge
+      await setDoc(dailyRecipeDocRef, { recipe: resultText, lastDailyRecipeDate: today }, { merge: true });
 
     } catch (err) {
       handleError(t.noDailyRecipe, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
   }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, isAuthReady, db, t.firebaseNotInitialized]);
 
 
-  // --- Fonctions d'adaptation LLM ---
+  // --- LLM Adaptation Functions ---
 
   const handleAdaptRecipe = useCallback(async () => {
     clearError();
@@ -1693,37 +1683,28 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.adaptingRecipeDetailed); // Detailed loading message
-    const payload = { recipe: generatedRecipe, prompt: adaptRecipePrompt, language, dietaryPreference };
-    console.log('Sending adapt-recipe request to:', 'http://localhost:3001/api/adapt-recipe');
-    console.log('Payload:', payload);
+    setLoadingMessage(t.adaptingRecipeDetailed);
+    const prompt = `Adapte la recette suivante :
+    ${generatedRecipe}
+    Selon la demande : "${adaptRecipePrompt}".
+    La recette doit rester en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la recette adaptée en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/adapt-recipe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Adapt-recipe response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Adapt-recipe error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Adapt-recipe response data:', data);
-      setGeneratedRecipe(data.adaptedRecipe);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText);
       setAdaptRecipePrompt('');
       setShowAdaptRecipeInput(false);
       showModal("Recette adaptée avec succès !", closeModal, closeModal);
     } catch (err) {
       handleError(t.errorAdaptRecipe, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [generatedRecipe, adaptRecipePrompt, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.adaptingRecipeDetailed]);
+  }, [generatedRecipe, adaptRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.adaptingRecipeDetailed]);
 
   const handleSubstituteIngredient = useCallback(async () => {
     clearError();
@@ -1736,34 +1717,19 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.substitutingIngredientDetailed); // Detailed loading message
+    setLoadingMessage(t.substitutingIngredientDetailed);
+    const prompt = `Dans la recette suivante :
+    ${generatedRecipe}
+    Substitue l'ingrédient "${ingredientToSubstitute}" par "${substituteWith.trim() || 'un substitut approprié'}" en tenant compte de la préférence alimentaire "${t[`dietary${dietaryPreference.charAt(0).toUpperCase() + dietaryPreference.slice(1)}`]}".
+    La recette doit rester en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la recette adaptée en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
     const payload = {
-      recipe: generatedRecipe,
-      ingredientToSubstitute,
-      substituteWith: substituteWith.trim(),
-      language,
-      dietaryPreference
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
     };
-    console.log('Sending substitute-ingredient request to:', 'http://localhost:3001/api/substitute-ingredient');
-    console.log('Payload:', payload);
 
     try {
-      const response = await fetch('http://localhost:3001/api/substitute-ingredient', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Substitute-ingredient response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Substitute-ingredient error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Substitute-ingredient response data:', data);
-      setGeneratedRecipe(data.substitutedRecipe);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText);
       setIngredientToSubstitute('');
       setSubstituteWith('');
       setShowSubstituteIngredientInput(false);
@@ -1771,7 +1737,7 @@ export default function App() {
     } catch (err) {
       handleError(t.errorSubstituteIngredient, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
   }, [generatedRecipe, ingredientToSubstitute, substituteWith, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToSubstitute, t.errorSubstituteIngredient, t.substitutingIngredientDetailed]);
 
@@ -1787,37 +1753,27 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.scalingRecipeDetailed); // Detailed loading message
-    const payload = { recipe: generatedRecipe, servings, language, dietaryPreference };
-    console.log('Sending scale-recipe request to:', 'http://localhost:3001/api/scale-recipe');
-    console.log('Payload:', payload);
+    setLoadingMessage(t.scalingRecipeDetailed);
+    const prompt = `Adapte la recette suivante pour ${servings} personnes :
+    ${generatedRecipe}
+    La recette doit rester en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la recette adaptée en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/scale-recipe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Scale-recipe response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Scale-recipe error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Scale-recipe response data:', data);
-      setGeneratedRecipe(data.scaledRecipe);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText);
       setScaleServings('');
       setShowScaleRecipeInput(false);
       showModal("Quantité de recette adaptée avec succès !", closeModal, closeModal);
     } catch (err) {
-      handleError(t.errorAdaptRecipe, err); // Reusing adapt error message
+      handleError(t.errorAdaptRecipe, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [generatedRecipe, scaleServings, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.scalingRecipeDetailed]);
+  }, [generatedRecipe, scaleServings, language, clearError, showModal, closeModal, handleError, t.noRecipeToAdapt, t.errorAdaptRecipe, t.scalingRecipeDetailed]);
 
   const handleAskCookingTip = useCallback(async () => {
     clearError();
@@ -1830,35 +1786,26 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.gettingTipDetailed); // Detailed loading message
+    setLoadingMessage(t.gettingTipDetailed);
     setCookingTipResult('');
-    const payload = { recipe: generatedRecipe, question: cookingTipPrompt, language, dietaryPreference };
-    console.log('Sending cooking-tip request to:', 'http://localhost:3001/api/cooking-tip');
-    console.log('Payload:', payload);
+    const prompt = `En te basant sur la recette suivante (si fournie) :
+    ${generatedRecipe || "Aucune recette fournie."}
+    Réponds à la question suivante : "${cookingTipPrompt}".
+    Le conseil doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la réponse en HTML.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/cooking-tip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Cooking-tip response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Cooking-tip error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Cooking-tip response data:', data);
-      setCookingTipResult(data.tip);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setCookingTipResult(resultText);
     } catch (err) {
       handleError("Erreur lors de l'obtention du conseil : ", err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [generatedRecipe, cookingTipPrompt, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeForTip, t.gettingTipDetailed]);
+  }, [generatedRecipe, cookingTipPrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeForTip, t.gettingTipDetailed]);
 
   const handleGenerateMealPrepGuide = useCallback(async () => {
     clearError();
@@ -1867,36 +1814,26 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.generatingMealPrepGuideDetailed); // Detailed loading message
-    const payload = { recipe: generatedRecipe, language, dietaryPreference };
-    console.log('Sending meal-prep-guide request to:', 'http://localhost:3001/api/meal-prep-guide');
-    console.log('Payload:', payload);
+    setLoadingMessage(t.generatingMealPrepGuideDetailed);
+    const prompt = `Génère un guide de préparation de repas détaillé pour la recette suivante :
+    ${generatedRecipe}
+    Le guide doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte le guide en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/meal-prep-guide', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Meal-prep-guide response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Meal-prep-guide error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Meal-prep-guide response data:', data);
-      setGeneratedRecipe(data.guide);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText); // Display the guide in the recipe section
       showModal("Guide de préparation généré !", closeModal, closeModal);
-      setViewMode('recipe'); // Show the guide in the recipe section
+      setViewMode('recipe');
     } catch (err) {
       handleError("Erreur lors de la génération du guide : ", err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [generatedRecipe, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeForMealPrep, t.generatingMealPrepGuideDetailed]);
+  }, [generatedRecipe, language, clearError, showModal, closeModal, handleError, t.noRecipeForMealPrep, t.generatingMealPrepGuideDetailed]);
 
   const handleGetFoodPairingSuggestions = useCallback(async () => {
     clearError();
@@ -1905,35 +1842,24 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.gettingFoodPairingsDetailed); // Detailed loading message
+    setLoadingMessage(t.gettingFoodPairingsDetailed);
     setFoodPairingResult('');
-    const payload = { food: foodPairingQuery, language, dietaryPreference };
-    console.log('Sending food-pairing request to:', 'http://localhost:3001/api/food-pairing');
-    console.log('Payload:', payload);
+    const prompt = `Donne des suggestions d'accords culinaires pour l'ingrédient suivant : "${foodPairingQuery}".
+    Les suggestions doivent être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la réponse en HTML.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/food-pairing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Food-pairing response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Food-pairing error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Food-pairing response data:', data);
-      setFoodPairingResult(data.pairings);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setFoodPairingResult(resultText);
     } catch (err) {
       handleError("Erreur lors de l'obtention des suggestions : ", err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [foodPairingQuery, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noFoodForPairing, t.gettingFoodPairingsDetailed]);
+  }, [foodPairingQuery, language, clearError, showModal, closeModal, handleError, t.noFoodForPairing, t.gettingFoodPairingsDetailed]);
 
   const handleGetIngredientInfo = useCallback(async () => {
     clearError();
@@ -1942,53 +1868,38 @@ export default function App() {
       return;
     }
 
-    // --- Mise en cache de l'information sur les ingrédients ---
     const cacheKey = `ingredientInfo_${language}_${ingredientInfoQuery.toLowerCase()}`;
     const cachedData = localStorage.getItem(cacheKey);
-    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
     if (cachedData) {
       const { data, timestamp } = JSON.parse(cachedData);
       if (Date.now() - timestamp < CACHE_DURATION) {
         console.log('Using cached ingredient info:', ingredientInfoQuery);
         setIngredientInfoResult(data);
-        return; // Exit early, use cached data
+        return;
       }
     }
 
-    setLoadingMessage(t.gettingIngredientInfoDetailed); // Detailed loading message
+    setLoadingMessage(t.gettingIngredientInfoDetailed);
     setIngredientInfoResult('');
-    const payload = { ingredientName: ingredientInfoQuery, language, dietaryPreference };
-    console.log('Sending ingredient-info request to:', 'http://localhost:3001/api/ingredient-info');
-    console.log('Payload:', payload);
+    const prompt = `Donne des informations détaillées sur l'ingrédient suivant : "${ingredientInfoQuery}". Inclue des informations nutritionnelles, des utilisations courantes et des conseils de conservation.
+    Les informations doivent être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la réponse en HTML.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/ingredient-info', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Ingredient-info response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Ingredient-info error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Ingredient-info response data:', data);
-      setIngredientInfoResult(data.info);
-
-      // Cache the new data
-      localStorage.setItem(cacheKey, JSON.stringify({ data: data.info, timestamp: Date.now() }));
-
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setIngredientInfoResult(resultText);
+      localStorage.setItem(cacheKey, JSON.stringify({ data: resultText, timestamp: Date.now() }));
     } catch (err) {
       handleError("Erreur lors de l'obtention des informations : ", err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [ingredientInfoQuery, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noIngredientForInfo, t.gettingIngredientInfoDetailed]);
+  }, [ingredientInfoQuery, language, clearError, showModal, closeModal, handleError, t.noIngredientForInfo, t.gettingIngredientInfoDetailed]);
 
   const handleOptimizeRecipeHealth = useCallback(async () => {
     clearError();
@@ -2001,40 +1912,31 @@ export default function App() {
       return;
     }
 
-    setLoadingMessage(t.optimizingRecipeDetailed); // Detailed loading message
-    const payload = { recipe: generatedRecipe, healthGoals: optimizeRecipePrompt, language, dietaryPreference };
-    console.log('Sending optimize-recipe-health request to:', 'http://localhost:3001/api/optimize-recipe-health');
-    console.log('Payload:', payload);
+    setLoadingMessage(t.optimizingRecipeDetailed);
+    const prompt = `Optimise la recette suivante pour des objectifs de santé spécifiques :
+    ${generatedRecipe}
+    Objectifs de santé : "${optimizeRecipePrompt}".
+    La recette optimisée doit être en ${language === 'fr' ? 'français' : (language === 'en' ? 'anglais' : (language === 'de' ? 'allemand' : (language === 'es' ? 'espagnol' : 'italien')))}. Formatte la recette en HTML avec des titres (h2, h3), des listes (ul, ol) et des paragraphes (p) pour une meilleure lisibilité.`;
+
+    const payload = {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    };
 
     try {
-      const response = await fetch('http://localhost:3001/api/optimize-recipe-health', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Optimize-recipe-health response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Optimize-recipe-health error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Optimize-recipe-health response data:', data);
-      setGeneratedRecipe(data.optimizedRecipe);
+      const resultText = await callGeminiApi("gemini-2.5-flash-preview-05-20", payload);
+      setGeneratedRecipe(resultText);
       setOptimizeRecipePrompt('');
       setShowOptimizeRecipeInput(false);
       showModal("Recette optimisée pour la santé !", closeModal, closeModal);
     } catch (err) {
       handleError(t.errorOptimizeRecipe, err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
-  }, [generatedRecipe, optimizeRecipePrompt, language, dietaryPreference, clearError, showModal, closeModal, handleError, t.noRecipeToOptimize, t.errorOptimizeRecipe, t.optimizingRecipeDetailed]);
+  }, [generatedRecipe, optimizeRecipePrompt, language, clearError, showModal, closeModal, handleError, t.noRecipeToOptimize, t.errorOptimizeRecipe, t.optimizingRecipeDetailed]);
 
 
-  // --- Gestion des données globales ---
+  // --- Global Data Management ---
   const handleClearAllData = useCallback(async () => {
     if (!isAuthReady || !userId || !db) {
       showModal(t.firebaseNotInitialized, closeModal, closeModal);
@@ -2042,31 +1944,25 @@ export default function App() {
     }
     showModal(t.confirmClearAllData, async () => {
       try {
-        // Delete user profile document
         await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`));
-        // Delete daily recipe cache
         await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/user_data/daily_recipe_cache`));
 
-        // Delete all favorite recipes
         const favoriteDocs = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/favorite_recipes`));
         for (const doc of favoriteDocs.docs) {
           await deleteDoc(doc.ref);
         }
 
-        // Delete all generated recipes history
         const historyDocs = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`));
         for (const doc of historyDocs.docs) {
           await deleteDoc(doc.ref);
         }
 
-        // Clear local states
         setFavoriteRecipes([]);
         setGeneratedRecipesHistory([]);
         setDailyRecipe(null);
         setLastDailyRecipeDate(null);
         setCookingStreak(0);
         setLastCookingLogDate('');
-        // Reset local preferences to default (will be re-synced from Firestore if profile is recreated)
         setLanguage('fr');
         setDarkMode(false);
         setDietaryPreference('none');
@@ -2074,9 +1970,9 @@ export default function App() {
         setPreparationTime('none');
         setDifficulty('none');
         setDishType('none');
-        setIsFirstTimeUser(true); // Mark as first time user again
+        setIsFirstTimeUser(true);
 
-        resetAllStates(); // Resets only the "volatile" states
+        resetAllStates();
         closeModal();
         showModal(t.dataCleared, closeModal, closeModal);
       } catch (e) {
@@ -2086,7 +1982,7 @@ export default function App() {
   }, [showModal, closeModal, resetAllStates, handleError, t.confirmClearAllData, t.dataCleared, userId, isAuthReady, db, t.firebaseNotInitialized]);
 
 
-  // --- Gestion du défi cuisine (Cooking Streak) ---
+  // --- Cooking Streak Management ---
   const handleUploadMealPhoto = useCallback(async () => {
     clearError();
     if (!isAuthReady || !userId || !db) {
@@ -2098,39 +1994,31 @@ export default function App() {
       return;
     }
 
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     if (lastCookingLogDate === today) {
       showModal(t.alreadyLoggedToday, closeModal, closeModal);
       return;
     }
 
-    setLoadingMessage(t.uploadingMealPhotoDetailed); // Detailed loading message
-    const payload = { image: selectedImage, lastLogDate: lastCookingLogDate, currentStreak: cookingStreak };
-    console.log('Sending log-meal-photo request to:', 'http://localhost:3001/api/log-meal-photo');
-    console.log('Payload:', payload);
+    setLoadingMessage(t.uploadingMealPhotoDetailed);
+
+    let newStreak = cookingStreak;
+    const lastLogDateObj = lastCookingLogDate ? new Date(lastCookingLogDate) : null;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayISO = yesterday.toISOString().slice(0, 10);
+
+    if (lastLogDateObj && lastCookingLogDate === yesterdayISO) {
+      newStreak += 1;
+    } else {
+      newStreak = 1;
+    }
+
+    const message = newStreak > cookingStreak ? t.streakIncreased.replace('{streak}', newStreak) : t.streakReset;
 
     try {
-      const response = await fetch('http://localhost:3001/api/log-meal-photo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Log-meal-photo response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Log-meal-photo error data:', errorData);
-        throw new Error(errorData.error || response.statusText);
-      }
-
-      const data = await response.json();
-      console.log('Log-meal-photo response data:', data);
-      const newStreak = data.newStreak;
-      const message = newStreak > cookingStreak ? t.streakIncreased.replace('{streak}', newStreak) : t.streakReset;
-
-      // Update Firestore with new streak and last log date
       const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/user_data/profile`);
-      await setDoc(userProfileRef, { // Use setDoc with merge: true
+      await setDoc(userProfileRef, {
         cookingStreak: newStreak,
         lastCookingLogDate: today,
       }, { merge: true });
@@ -2141,12 +2029,12 @@ export default function App() {
     } catch (err) {
       handleError("Erreur lors de l'enregistrement du plat : ", err);
     } finally {
-      setLoadingMessage(null); // Clear loading message
+      setLoadingMessage(null);
     }
   }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, isAuthReady, db, t.firebaseNotInitialized]);
 
 
-  // --- Logique de filtrage pour les favoris et l'historique ---
+  // --- Filtering logic for favorites and history ---
   const filterRecipes = useCallback((recipes) => {
     return recipes.filter(recipe => {
       const matchesSearch = recipe.title.toLowerCase().includes(favoriteSearchTerm.toLowerCase()) ||
@@ -2190,10 +2078,10 @@ export default function App() {
 
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800'} transition-colors duration-300 font-sans`}>
-      {/* Styles personnalisés injectés */}
+      {/* Custom styles injected */}
       <style>{customAnimations}</style>
 
-      {/* Barre de navigation / Header */}
+      {/* Navigation Bar / Header */}
       <header className={`py-4 shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} border-b border-gray-200 ${darkMode ? 'border-gray-700' : ''}`}>
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-3xl font-extrabold text-indigo-600 flex items-center gap-2 mb-4 md:mb-0">
@@ -2221,7 +2109,7 @@ export default function App() {
               <Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" /> {t.favorites}
             </button>
             <button
-              onClick={() => setViewMode('history')} // Nouveau bouton pour l'historique
+              onClick={() => setViewMode('history')}
               className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
                 ${viewMode === 'history' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
                 hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
@@ -2254,7 +2142,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Contenu principal */}
+      {/* Main Content */}
       <main className="container mx-auto px-4 py-8 flex-grow">
         {error && (
           <div className={`mt-4 mb-8 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 ${darkMode ? 'bg-red-900 border-red-700 text-red-200' : ''} animate-fadeIn`} role="alert">
@@ -2273,7 +2161,7 @@ export default function App() {
               ${selectedImage ? 'hover:bg-transparent' : (darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50')}
               ${loadingMessage ? 'pointer-events-none opacity-70' : 'hover:border-indigo-500 dark:hover:border-indigo-400'}
               `}
-              onClick={() => !loadingMessage && fileInputRef.current.click()} // Disable click during any loading
+              onClick={() => !loadingMessage && fileInputRef.current.click()}
               role="button"
               tabIndex="0"
               aria-label={selectedImage ? "Changer l'image du frigo" : "Télécharger une image de votre frigo"}
@@ -2330,7 +2218,6 @@ export default function App() {
                         className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-20`}
                         aria-label={`Nom de l'ingrédient ${ing.name}`}
                       />
-                      {/* Champs éditables pour quantité et unité */}
                       <input
                         type="number"
                         value={ing.quantity}
@@ -2418,9 +2305,9 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Nouveaux filtres de personnalisation */}
+                {/* New customization filters */}
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Type de cuisine */}
+                  {/* Cuisine Type */}
                   <div>
                     <label htmlFor="cuisine-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
                       <ChefHat className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.cuisineType}
@@ -2444,7 +2331,7 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* Temps de préparation */}
+                  {/* Preparation Time */}
                   <div>
                     <label htmlFor="prep-time-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
                       <Clock className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.prepTime}
@@ -2463,7 +2350,7 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* Difficulté */}
+                  {/* Difficulty */}
                   <div>
                     <label htmlFor="difficulty-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
                       <TrendingUp className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.difficulty}
@@ -2482,7 +2369,7 @@ export default function App() {
                     </select>
                   </div>
 
-                  {/* Type de plat */}
+                  {/* Dish Type */}
                   <div>
                     <label htmlFor="dish-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
                       <Utensils className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.dishType}
@@ -2735,7 +2622,7 @@ export default function App() {
                 </div>
 
                 {/* Ask Cooking Tip */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} transition-all duration-300 ease-in-out overflow-hidden`}>
+                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
                   <button
                     onClick={() => setShowCookingTipInput(prev => !prev)}
                     className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
@@ -2882,7 +2769,7 @@ export default function App() {
               <Heart className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.favorites}
             </h2>
 
-            {/* Filtres pour les favoris */}
+            {/* Filters for favorites */}
             <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner animate-fadeIn`}>
               <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer les favoris :</h3>
               <input
@@ -2894,7 +2781,7 @@ export default function App() {
                 aria-label={t.searchRecipes}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Type de cuisine */}
+                {/* Cuisine Type */}
                 <div>
                   <label htmlFor="fav-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
                   <select
@@ -2915,7 +2802,7 @@ export default function App() {
                     <option value="other">{t.cuisineOther}</option>
                   </select>
                 </div>
-                {/* Temps de préparation */}
+                {/* Preparation Time */}
                 <div>
                   <label htmlFor="fav-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
                   <select
@@ -2931,7 +2818,7 @@ export default function App() {
                     <option value="long">{t.timeLong}</option>
                   </select>
                 </div>
-                {/* Difficulté */}
+                {/* Difficulty */}
                 <div>
                   <label htmlFor="fav-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
                   <select
@@ -2947,7 +2834,7 @@ export default function App() {
                     <option value="hard">{t.difficultyHard}</option>
                   </select>
                 </div>
-                {/* Préférence alimentaire */}
+                {/* Dietary Preference */}
                 <div>
                   <label htmlFor="fav-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
                   <select
@@ -2965,7 +2852,7 @@ export default function App() {
                     <option value="kosher">{t.dietaryKosher}</option>
                   </select>
                 </div>
-                {/* Type de plat */}
+                {/* Dish Type */}
                 <div>
                   <label htmlFor="fav-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
                   <select
@@ -3029,13 +2916,32 @@ export default function App() {
                       >
                         {t.viewRecipe}
                       </button>
-                      <button
-                        onClick={() => handleDeleteFavorite(recipe.id)}
-                        className="text-red-500 hover:text-red-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
-                        aria-label={`Supprimer ${recipe.title} des favoris`}
-                      >
-                        <X className="w-5 h-5" aria-hidden="true" />
-                      </button>
+                      {!isFavorite(recipe.content) && (
+                        <button
+                          onClick={async () => {
+                            if (!isAuthReady || !userId || !db) {
+                              showModal(t.firebaseNotInitialized, closeModal, closeModal);
+                              return;
+                            }
+                            try {
+                              const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
+                              await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
+                                title: recipe.title,
+                                content: recipe.content,
+                                date: recipe.date,
+                                filters: recipe.filters
+                              }, { merge: true });
+                              showModal(`${t.addToFavorites} !`, closeModal, closeModal);
+                            } catch (e) {
+                              handleError("Erreur lors de l'ajout aux favoris :", e);
+                            }
+                          }}
+                          className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-full p-1"
+                          aria-label={t.addToFavorites}
+                        >
+                          <Heart className="w-5 h-5" aria-hidden="true" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -3050,19 +2956,19 @@ export default function App() {
               <History className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.history}
             </h2>
 
-            {/* Filtres pour l'historique (réutilise les mêmes états que les favoris pour la démo) */}
+            {/* Filters for history (reusing same states as favorites for demo) */}
             <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner animate-fadeIn`}>
               <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer l'historique :</h3>
               <input
                 type="text"
                 placeholder={t.searchRecipes}
-                value={favoriteSearchTerm} // Utilise le même état de recherche
+                value={favoriteSearchTerm}
                 onChange={(e) => setFavoriteSearchTerm(e.target.value)}
                 className={`w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
                 aria-label={t.searchRecipes}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Type de cuisine */}
+                {/* Cuisine Type */}
                 <div>
                   <label htmlFor="hist-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
                   <select
@@ -3083,7 +2989,7 @@ export default function App() {
                     <option value="other">{t.cuisineOther}</option>
                   </select>
                 </div>
-                {/* Temps de préparation */}
+                {/* Preparation Time */}
                 <div>
                   <label htmlFor="hist-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
                   <select
@@ -3099,7 +3005,7 @@ export default function App() {
                     <option value="long">{t.timeLong}</option>
                   </select>
                 </div>
-                {/* Difficulté */}
+                {/* Difficulty */}
                 <div>
                   <label htmlFor="hist-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
                   <select
@@ -3115,7 +3021,7 @@ export default function App() {
                     <option value="hard">{t.difficultyHard}</option>
                   </select>
                 </div>
-                {/* Préférence alimentaire */}
+                {/* Dietary Preference */}
                 <div>
                   <label htmlFor="hist-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
                   <select
@@ -3133,7 +3039,7 @@ export default function App() {
                     <option value="kosher">{t.dietaryKosher}</option>
                   </select>
                 </div>
-                {/* Type de plat */}
+                {/* Dish Type */}
                 <div>
                   <label htmlFor="hist-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
                   <select
@@ -3197,7 +3103,6 @@ export default function App() {
                       >
                         {t.viewRecipe}
                       </button>
-                      {/* Optionnel: Ajouter aux favoris depuis l'historique si ce n'est pas déjà un favori */}
                       {!isFavorite(recipe.content) && (
                         <button
                           onClick={async () => {
@@ -3206,14 +3111,13 @@ export default function App() {
                               return;
                             }
                             try {
-                              // Use a more robust ID for the favorite recipe document
-                              const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, ''); // Base64 encode first 100 chars and remove padding
+                              const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
                               await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
                                 title: recipe.title,
                                 content: recipe.content,
                                 date: recipe.date,
                                 filters: recipe.filters
-                              }, { merge: true }); // Use setDoc with merge
+                              }, { merge: true });
                               showModal(`${t.addToFavorites} !`, closeModal, closeModal);
                             } catch (e) {
                               handleError("Erreur lors de l'ajout aux favoris :", e);
@@ -3256,7 +3160,7 @@ export default function App() {
               </div>
             )}
             <button
-              onClick={() => fetchDailyRecipe()} // Allow explicit re-fetch
+              onClick={() => fetchDailyRecipe()}
               className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               disabled={!!loadingMessage}
               aria-label={loadingMessage ? loadingMessage : t.recipeOfTheDay}
@@ -3372,7 +3276,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Modal personnalisé */}
+      {/* Custom Modal */}
       <CustomModal
         message={modalMessage}
         onConfirm={modalOnConfirm}
