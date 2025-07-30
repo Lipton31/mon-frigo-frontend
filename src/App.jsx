@@ -94,7 +94,7 @@ const translations = {
     addToFavorites: "Ajouter aux Favoris",
     removeFromFavorites: "Retirer des Favoris",
     favorites: "Mes Favoris",
-    noFavorites: "Vous n'avez pas encore de recettes favoris. Commencez à en générer !",
+    noFavorites: "Vous n'avez pas encore de recettes favorites. Commencez à en générer !",
     recipeOfTheDay: "Recette du Jour",
     generatingDailyRecipe: "Génération de la recette du jour...",
     noDailyRecipe: "Aucune recette du jour disponible pour l'instant. Revenez demain ou générez la vôtre !",
@@ -248,186 +248,6 @@ const translations = {
     uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
     userIdDisplay: "Votre ID utilisateur : ",
     firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées.",
-  },
-  en: {
-    appTitle: "My Smart Fridge 🥦🥕",
-    uploadSectionTitle: "Add a photo of your fridge",
-    analyzeButton: "Analyze my fridge with AI",
-    analyzing: "Analyzing...",
-    errorImageRead: "Error reading file.",
-    errorNoImage: "Please select a fridge image first.",
-    ingredientsDetected: "Detected Ingredients:",
-    placeholderIngredients: "Ingredient name",
-    addIngredient: "Add",
-    addExpiryDate: "Expiry Date (MM/DD/YYYY)",
-    addQuantity: "Quantity",
-    addUnit: "Unit",
-    generateRecipeButton: "Generate Recipe",
-    generatingRecipe: "Generating recipe...",
-    errorDetectIngredients: "Could not detect ingredients. Please try again.",
-    errorGenerateRecipe: "Could not generate recipe. Please try again.",
-    errorRecipeGeneration: "Error generating recipe: ",
-    errorImageAnalysis: "Error analyzing image: ",
-    recipeTitle: "Your Smart Recipe!",
-    magicHappening: "Magic in progress... Recipe being created!",
-    newAnalysis: "New analysis",
-    addToFavorites: "Add to Favorites",
-    removeFromFavorites: "Remove From Favorites",
-    favorites: "My Favorites",
-    noFavorites: "You don't have any favorite recipes yet. Start generating some!",
-    recipeOfTheDay: "Recipe of the Day",
-    generatingDailyRecipe: "Generating daily recipe...",
-    noDailyRecipe: "No daily recipe available yet. Check back tomorrow or generate your own!",
-    settings: "Settings",
-    languageSelection: "Language selection:",
-    languageFrench: "French",
-    languageEnglish: "English",
-    languageGerman: "German",
-    languageSpanish: "Spanish",
-    languageItalian: "Italiano",
-    detectedSuccess: "Ingredients detected successfully!",
-    confirmDelete: "Confirm Deletion",
-    confirmDeleteRecipe: "Are you sure you want to delete this recipe from your favorites?",
-    cancel: "Cancel",
-    delete: "Delete",
-    ok: "OK",
-    recipeDeleted: "Recipe deleted from your favorites.",
-    noIngredientsForRecipe: "Please detect ingredients first or enter them manually.",
-    adaptRecipe: "✨ Adapt Recipe",
-    substituteIngredient: "✨ Substitute Ingredient",
-    enterAdaptRequest: "Ex: 'make vegetarian', 'less sugar', 'quicker'",
-    enterIngredientToSubstitute: "Ingredient to substitute (ex: 'chicken')",
-    enterSubstituteWith: "Substitute with (optional, ex: 'tofu')",
-    adapt: "Adapt",
-    substitute: "Substitute",
-    adaptingRecipe: "Adapting recipe...",
-    substitutingIngredient: "Substituting ingredient...",
-    errorAdaptRecipe: "Error adapting recipe: ",
-    errorSubstituteIngredient: "Error substituting ingredient: ",
-    noRecipeToAdapt: "Please generate a recipe to adapt first.",
-    noRecipeToSubstitute: "Please generate a recipe for substitution first.",
-    scaleRecipe: "✨ Scale Recipe",
-    enterServings: "Number of servings (ex: 2, 6)",
-    scale: "Scale",
-    scalingRecipe: "Scaling recipe...",
-    askCookingTip: "✨ Ask for Cooking Tip",
-    enterCookingQuestion: "Your question (ex: 'How to properly sauté onions?')",
-    ask: "Ask",
-    gettingTip: "Getting tip...",
-    noRecipeForTip: "Please generate a recipe to get a tip.",
-    cookingTip: "Cooking Tip:",
-    mealPrepGuide: "✨ Meal Prep Guide",
-    generatingMealPrepGuide: "Generating guide...",
-    noRecipeForMealPrep: "Please generate a recipe for the meal prep guide.",
-    foodPairingSuggestions: "✨ Food Pairing Suggestions",
-    enterFoodForPairing: "Ingredient (ex: 'tomato')",
-    gettingFoodPairings: "Getting suggestions...",
-    noFoodForPairing: "Please enter an ingredient for pairing suggestions.",
-    foodPairingResultTitle: "Pairing Suggestions for",
-    getIngredientInfo: "✨ Get Ingredient Info",
-    enterIngredientName: "Ingredient Name (ex: 'broccoli')",
-    gettingIngredientInfo: "Getting info...",
-    ingredientInfo: "Ingredient Information",
-    noIngredientForInfo: "Please enter an ingredient to get information.",
-    optimizeRecipeHealth: "✨ Optimize Recipe Health",
-    enterHealthGoals: "Ex: 'less fat', 'more fiber', 'vegetarian'",
-    optimize: "Optimize",
-    optimizingRecipe: "Optimizing recipe...",
-    errorOptimizeRecipe: "Error optimizing recipe: ",
-    noRecipeToOptimize: "Please generate a recipe to optimize first.",
-    clearAllData: "Clear All Data",
-    confirmClearAllData: "Are you sure you want to clear all app data (recipes, favorites, etc.)? This action is irreversible.",
-    dataCleared: "All data cleared.",
-    myCookingStreak: "My Cooking Streak",
-    uploadMealPhotoButton: "I cooked this meal!",
-    uploadingMealPhoto: "Uploading meal photo...",
-    streakIncreased: "Great! Your cooking streak increased to {streak} days!",
-    streakReset: "Too bad! Your streak has been reset to 1 day.",
-    alreadyLoggedToday: "You have already logged a meal today.",
-    darkModeOn: "On",
-    darkModeOff: "Off",
-    viewRecipe: "View Recipe",
-    favoriteRecipeTitle: "Favorite Recipe",
-    dietaryPreferences: "Dietary Preferences:",
-    dietaryNone: "Default",
-    dietaryVegetarian: "Vegetarian",
-    dietaryVegan: "Vegan",
-    dietaryGlutenFree: "Gluten-Free",
-    dietaryHalal: "Halal",
-    dietaryKosher: "Kosher",
-    copyToClipboard: "Copy Recipe",
-    copied: "Copied!",
-    unitNone: "None",
-    unitUnits: "units",
-    unitGrams: "grams",
-    unitKilograms: "kilograms",
-    unitMilliliters: "milliliters",
-    unitLiters: "liters",
-    unitCups: "cups",
-    unitSpoons: "spoons",
-    cuisineType: "Cuisine Type:",
-    cuisineNone: "None",
-    cuisineFrench: "French",
-    cuisineItalian: "Italian",
-    cuisineAsian: "Asian",
-    cuisineMexican: "Mexican",
-    cuisineIndian: "Indian",
-    cuisineMediterranean: "Mediterranean",
-    cuisineAmerican: "American",
-    cuisineOther: "Other",
-    prepTime: "Preparation Time:",
-    timeNone: "None",
-    timeQuick: "Less than 30 min",
-    timeMedium: "30-60 min",
-    timeLong: "More than 60 min",
-    difficulty: "Difficulty:",
-    difficultyNone: "None",
-    difficultyEasy: "Easy",
-    difficultyMedium: "Medium",
-    difficultyHard: "Hard",
-    dishType: "Dish Type:",
-    dishTypeNone: "None",
-    dishTypeMain: "Main Course",
-    dishTypeDessert: "Dessert",
-    dishTypeAppetizer: "Appetizer",
-    dishTypeSide: "Side Dish",
-    dishTypeBreakfast: "Breakfast",
-    dishTypeSoup: "Soup",
-    dishTypeSalad: "Salad",
-    dishTypeDrink: "Drink",
-    optimizingImage: "Optimizing image...",
-    history: "My History",
-    noHistory: "No recipes have been generated yet. Start creating one!",
-    searchRecipes: "Search recipes...",
-    filterByCuisine: "Filter by cuisine:",
-    filterByTime: "Filter by time:",
-    filterByDifficulty: "Filter by difficulty:",
-    filterByDietary: "Filter by dietary:",
-    filterByDishType: "Filter by dish type:",
-    clearFilters: "Clear filters",
-    onboardingTitle: "Welcome to My Smart Fridge!",
-    onboardingStep1Title: "1. Analyze your fridge",
-    onboardingStep1Desc: "Take a photo of your fridge's interior. Our AI will detect available ingredients.",
-    onboardingStep2Title: "2. Generate recipes",
-    onboardingStep2Desc: "Based on your ingredients, we'll suggest creative and personalized recipes.",
-    onboardingStep3Title: "3. Explore and adapt",
-    onboardingStep3Desc: "Save your favorite recipes, view your history, and adapt recipes with our advanced AI tools.",
-    onboardingButton: "Let's go!",
-    errorGeneric: "An unexpected error occurred. Please check your internet connection or try again later. If the problem persists, contact support.",
-    analyzingImage: "Analyzing image...",
-    detectingIngredients: "Detecting ingredients...",
-    generatingRecipeDetailed: "Generating recipe (this may take a moment)...",
-    adaptingRecipeDetailed: "Adapting recipe...",
-    substitutingIngredientDetailed: "Substituting ingredient...",
-    scalingRecipeDetailed: "Scaling quantities...",
-    gettingTipDetailed: "Getting cooking tip...",
-    generatingMealPrepGuideDetailed: "Generating meal prep guide...",
-    gettingFoodPairingsDetailed: "Getting food pairing suggestions...",
-    gettingIngredientInfoDetailed: "Getting ingredient information...",
-    optimizingRecipeDetailed: "Optimizing recipe for health...",
-    uploadingMealPhotoDetailed: "Uploading meal photo...",
-    userIdDisplay: "Your User ID: ",
-    firebaseNotInitialized: "Firebase not initialized. Some features may be limited.",
   }
 };
 
@@ -567,8 +387,14 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
 
 // Helper function for Gemini API calls with exponential backoff
 const callGeminiApi = async (model, payload, retries = 3, delay = 1000) => {
-  // Use __api_key if available from the environment (Canvas), otherwise default to empty string for Netlify injection.
-  const apiKey = typeof __api_key !== 'undefined' ? __api_key : "";
+  // Try to get API key from Netlify environment variable first (Vite prefix)
+  // Fallback to Canvas environment variable if running in Canvas
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof __api_key !== 'undefined' ? __api_key : "");
+
+  if (!apiKey) {
+    throw new Error("Gemini API Key is not configured. Please set VITE_GEMINI_API_KEY in Netlify environment variables.");
+  }
+
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   for (let i = 0; i < retries; i++) {
@@ -775,12 +601,8 @@ export default function App() {
       }
     });
 
-    return () => {
-      if (auth && unsubscribeAuth) { // Only unsubscribe if auth was actually initialized
-        unsubscribeAuth();
-      }
-    };
-  }, [t.firebaseNotInitialized, db, auth]); // Added db and auth to dependencies to ensure effect re-runs if they change
+    // Removed db and auth from dependencies to ensure this effect runs only once on mount
+  }, [t.firebaseNotInitialized, initialAuthToken, appId]);
 
   // --- Persist user preferences to Firestore when they change ---
   useEffect(() => {
@@ -885,7 +707,7 @@ export default function App() {
       setDoc(userProfileRef, { isFirstTimeUser: false }, { merge: true }).catch(console.error);
     }
     setIsFirstTimeUser(false);
-  }, [userId, db]);
+  }, [userId, db, appId]);
 
   // --- Image handling and ingredient detection ---
 
@@ -1069,7 +891,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, userId, db]);
+  }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, userId, db, appId]);
 
   const isFavorite = useCallback((recipeContent) => {
     return favoriteRecipes.some(fav => fav.content === recipeContent);
@@ -1106,7 +928,7 @@ export default function App() {
         handleError("Erreur lors de l'ajout aux favoris :", e);
       }
     }
-  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, db, t.firebaseNotInitialized, t]);
+  }, [generatedRecipe, isFavorite, showModal, closeModal, handleError, t.recipeDeleted, t.addToFavorites, t.favoriteRecipeTitle, generatedRecipesHistory, cuisineType, preparationTime, difficulty, dishType, dietaryPreference, userId, db, t.firebaseNotInitialized, t, appId]);
 
   const handleDeleteFavorite = useCallback(async (recipeIdToDelete) => {
     if (!db || !userId) { // Check if db is initialized
@@ -1122,7 +944,7 @@ export default function App() {
         handleError("Erreur lors de la suppression du favori :", e);
       }
     }, closeModal, true);
-  }, [showModal, closeModal, handleError, t.confirmDeleteRecipe, t.recipeDeleted, userId, db, t.firebaseNotInitialized]);
+  }, [showModal, closeModal, handleError, t.confirmDeleteRecipe, t.recipeDeleted, userId, db, t.firebaseNotInitialized, appId]);
 
   const copyRecipeToClipboard = useCallback(() => {
     if (generatedRecipe) {
@@ -1176,7 +998,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized, t]);
+  }, [dailyRecipe, lastDailyRecipeDate, language, dietaryPreference, clearError, handleError, t.noDailyRecipe, t.generatingDailyRecipe, userId, db, t.firebaseNotInitialized, t, appId]);
 
 
   // --- LLM Adaptation Functions ---
@@ -1488,7 +1310,7 @@ export default function App() {
         handleError("Erreur lors de l'effacement des données :", e);
       }
     }, closeModal, true);
-  }, [showModal, closeModal, resetAllStates, handleError, t.confirmClearAllData, t.dataCleared, userId, db, t.firebaseNotInitialized]);
+  }, [showModal, closeModal, resetAllStates, handleError, t.confirmClearAllData, t.dataCleared, userId, db, t.firebaseNotInitialized, appId]);
 
 
   // --- Cooking Streak Management ---
@@ -1540,7 +1362,7 @@ export default function App() {
     } finally {
       setLoadingMessage(null);
     }
-  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, db, t.firebaseNotInitialized, t]);
+  }, [selectedImage, lastCookingLogDate, cookingStreak, clearError, showModal, closeModal, handleError, t.alreadyLoggedToday, t.streakIncreased, t.streakReset, t.uploadingMealPhotoDetailed, userId, db, t.firebaseNotInitialized, t, appId]);
 
 
   // --- Filtering logic for favorites and history ---
