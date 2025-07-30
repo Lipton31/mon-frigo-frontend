@@ -3,8 +3,9 @@ import {
   Camera, Utensils, Sun, Heart, Settings, Flame, Eye, Info, X, ChevronDown, CheckCircle,
   BookOpenText, CalendarOff, Clipboard, Loader2, Lightbulb, Salad, Apple, FlaskConical,
   ChefHat, Search, Eraser, PlusCircle, Package, Clock, TrendingUp, TrendingDown, History,
-  Sparkles, User
+  Sparkles, User, Plus // Nouvelle icône pour le bouton central
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion'; // Import de Framer Motion
 
 // Firebase Imports
 import { initializeApp } from 'firebase/app';
@@ -58,8 +59,8 @@ try {
 }
 
 
-// --- Custom CSS Animations ---
-const customAnimations = `
+// --- Custom CSS Animations and Glassmorphism ---
+const customStyles = `
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -106,6 +107,34 @@ const customAnimations = `
   background-size: 1000px 100%;
 }
 .animate-float { animation: float 3s ease-in-out infinite; }
+
+/* Glassmorphism effect */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.3); /* Light background with transparency */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.dark .glassmorphism {
+  background: rgba(0, 0, 0, 0.2); /* Darker background with transparency */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* soft gray */
+  border-radius: 4px;
+}
+.dark::-webkit-scrollbar-thumb {
+  background: #4b5563; /* dark gray */
+}
 `;
 
 
@@ -290,6 +319,12 @@ const translations = {
     uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
     userIdDisplay: "Votre ID utilisateur : ",
     firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées.",
+    addRecipeTitle: "Ajouter une nouvelle recette",
+    recipeName: "Nom de la recette",
+    recipeIngredients: "Ingrédients (un par ligne)",
+    recipeInstructions: "Instructions",
+    addRecipe: "Ajouter la recette",
+    recipeAddedSuccess: "Recette ajoutée avec succès !",
   },
   en: {
     appTitle: "My Smart Fridge 🥦🥕",
@@ -470,6 +505,12 @@ const translations = {
     uploadingMealPhotoDetailed: "Uploading meal photo...",
     userIdDisplay: "Your User ID: ",
     firebaseNotInitialized: "Firebase not initialized. Some features may be limited.",
+    addRecipeTitle: "Add New Recipe",
+    recipeName: "Recipe Name",
+    recipeIngredients: "Ingredients (one per line)",
+    recipeInstructions: "Instructions",
+    addRecipe: "Add Recipe",
+    recipeAddedSuccess: "Recipe added successfully!",
   }
 };
 
@@ -481,7 +522,13 @@ const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 animate-fadeIn" aria-modal="true" role="dialog">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-sm w-full text-center transform animate-popIn">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-sm w-full text-center transform glassmorphism"
+      >
         <p className="text-lg mb-6 text-gray-800 dark:text-gray-200">{message}</p>
         <div className="flex justify-center gap-4">
           {onCancel && (
@@ -511,7 +558,7 @@ const CustomModal = ({ message, onConfirm, onCancel, showConfirmButton = false, 
             </button>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -536,7 +583,13 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
   const t = translations[currentLanguage];
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fadeIn" aria-modal="true" role="dialog">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full text-center transform animate-popIn">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full text-center transform glassmorphism"
+      >
         <h2 className="text-3xl font-extrabold mb-6 text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-3">
           <Sparkles className="w-8 h-8" /> {t.onboardingTitle}
         </h2>
@@ -567,7 +620,7 @@ const OnboardingModal = ({ onClose, currentLanguage }) => {
         >
           {t.onboardingButton}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -631,7 +684,7 @@ export default function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(null);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('upload');
+  const [viewMode, setViewMode] = useState('recipeOfTheDay'); // Default to daily recipe
   const [modalMessage, setModalMessage] = useState('');
   const [modalOnConfirm, setModalOnConfirm] = useState(null);
   const [modalOnCancel, setModalOnCancel] = useState(null);
@@ -647,6 +700,12 @@ export default function App() {
   const [lastCookingLogDate, setLastCookingLogDate] = useState('');
   const [copied, setCopied] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
+  const [showAddRecipeModal, setShowAddRecipeModal] = useState(false); // State for Add Recipe modal
+
+  const [newRecipeName, setNewRecipeName] = useState('');
+  const [newRecipeIngredients, setNewRecipeIngredients] = useState('');
+  const [newRecipeInstructions, setNewRecipeInstructions] = useState('');
+
 
   const [cuisineType, setCuisineType] = useState('none');
   const [preparationTime, setPreparationTime] = useState('none');
@@ -854,7 +913,7 @@ export default function App() {
     setGeneratedRecipe('');
     setLoadingMessage(null);
     setError('');
-    setViewMode('upload');
+    // setViewMode('upload'); // Keep current view mode or set to a default like 'recipeOfTheDay'
     setModalMessage('');
     setModalOnConfirm(null);
     setModalOnCancel(null);
@@ -883,6 +942,9 @@ export default function App() {
     setFavoriteDifficultyFilter('none');
     setFavoriteDietaryFilter('none');
     setFavoriteDishTypeFilter('none');
+    setNewRecipeName('');
+    setNewRecipeIngredients('');
+    setNewRecipeInstructions('');
   }, []);
 
   const handleOnboardingComplete = useCallback(() => {
@@ -1076,6 +1138,47 @@ export default function App() {
       setLoadingMessage(null);
     }
   }, [detectedIngredients, language, dietaryPreference, cuisineType, preparationTime, difficulty, dishType, clearError, showModal, closeModal, handleError, t.noIngredientsForRecipe, t.errorGenerateRecipe, t.generatingRecipeDetailed, t, userId, db]);
+
+  const handleAddCustomRecipe = useCallback(async () => {
+    clearError();
+    if (!newRecipeName.trim() || !newRecipeIngredients.trim() || !newRecipeInstructions.trim()) {
+      showModal("Veuillez remplir tous les champs de la recette.", closeModal, closeModal);
+      return;
+    }
+
+    setLoadingMessage("Ajout de la recette...");
+
+    const recipeContent = `<h2>${newRecipeName}</h2>
+    <h3>Ingrédients :</h3>
+    <ul>${newRecipeIngredients.split('\n').map(item => `<li>${item.trim()}</li>`).join('')}</ul>
+    <h3>Instructions :</h3>
+    <ol>${newRecipeInstructions.split('\n').map(item => `<li>${item.trim()}</li>`).join('')}</ol>`;
+
+    try {
+      if (db && userId) {
+        const historyCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/generated_recipes_history`);
+        await addDoc(historyCollectionRef, {
+          title: newRecipeName,
+          content: recipeContent,
+          date: new Date().toISOString().slice(0, 10),
+          filters: { cuisineType: 'none', preparationTime: 'none', difficulty: 'none', dishType: 'none', dietaryPreference: 'none' } // Default filters for manual entry
+        });
+        showModal(t.recipeAddedSuccess, () => {
+          setShowAddRecipeModal(false);
+          resetAllStates();
+          setViewMode('history'); // Navigate to history after adding
+          closeModal();
+        }, null);
+      } else {
+        showModal(t.firebaseNotInitialized, closeModal, closeModal);
+      }
+    } catch (err) {
+      handleError("Erreur lors de l'ajout de la recette :", err);
+    } finally {
+      setLoadingMessage(null);
+    }
+  }, [newRecipeName, newRecipeIngredients, newRecipeInstructions, clearError, showModal, closeModal, handleError, t.recipeAddedSuccess, t.firebaseNotInitialized, userId, db, resetAllStates]);
+
 
   const isFavorite = useCallback((recipeContent) => {
     return favoriteRecipes.some(fav => fav.content === recipeContent);
@@ -1582,6 +1685,19 @@ export default function App() {
     setFavoriteDishTypeFilter('none');
   }, []);
 
+  // Variants for page transitions
+  const pageVariants = {
+    initial: { opacity: 0, x: 200 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -200 }
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "easeInOut",
+    duration: 0.4
+  };
+
   if (!isAuthReady) {
     return (
       <div className={`min-h-screen flex flex-col items-center justify-center ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-800'}`}>
@@ -1592,247 +1708,732 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800'} transition-colors duration-300 font-sans`}>
+    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100' : 'bg-gradient-to-br from-red-50 to-orange-100 text-gray-800'} transition-colors duration-300 font-sans`}>
       {/* Custom styles injected */}
-      <style>{customAnimations}</style>
+      <style>{customStyles}</style>
 
-      {/* Navigation Bar / Header */}
-      <header className={`py-4 shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} border-b border-gray-200 ${darkMode ? 'border-gray-700' : ''}`}>
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <h1 className="text-3xl font-extrabold text-indigo-600 flex items-center gap-2 mb-4 md:mb-0">
-            <Utensils className="w-8 h-8 transition-transform duration-300 hover:scale-110 hover:rotate-6" /> {t.appTitle}
-          </h1>
-          <nav className="flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => { setViewMode('upload'); resetAllStates(); }}
-              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
-                ${viewMode === 'upload' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
-                hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
-              `}
-              aria-label={t.uploadSectionTitle}
-            >
-              <Camera className="w-5 h-5 transition-transform duration-200 hover:scale-110" /> {t.uploadSectionTitle.split(' ')[0]}
-            </button>
-            <button
-              onClick={() => setViewMode('favorites')}
-              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
-                ${viewMode === 'favorites' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
-                hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
-              `}
-              aria-label={t.favorites}
-            >
-              <Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" /> {t.favorites}
-            </button>
-            <button
-              onClick={() => setViewMode('history')}
-              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
-                ${viewMode === 'history' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
-                hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
-              `}
-              aria-label={t.history}
-            >
-              <History className="w-5 h-5 transition-transform duration-200 hover:scale-110" /> {t.history}
-            </button>
-            <button
-              onClick={() => { setViewMode('dailyRecipe'); fetchDailyRecipe(); }}
-              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
-                ${viewMode === 'dailyRecipe' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
-                hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
-              `}
-              aria-label={t.recipeOfTheDay}
-            >
-              <Sun className="w-5 h-5 transition-transform duration-200 hover:scale-110" /> {t.recipeOfTheDay}
-            </button>
-            <button
-              onClick={() => setViewMode('settings')}
-              className={`px-4 py-2 rounded-lg text-lg font-semibold transition-all duration-300 flex items-center gap-2
-                ${viewMode === 'settings' ? 'bg-indigo-600 text-white shadow-md animate-pulse-glow' : (darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-200')}
-                hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500
-              `}
-              aria-label={t.settings}
-            >
-              <Settings className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.settings}
-            </button>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 flex-grow">
+      {/* Main Content Area */}
+      <main className="container mx-auto px-4 py-8 flex-grow overflow-y-auto pb-20"> {/* Added pb-20 for bottom nav */}
         {error && (
           <div className={`mt-4 mb-8 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-2 ${darkMode ? 'bg-red-900 border-red-700 text-red-200' : ''} animate-fadeIn`} role="alert">
             <Info className="w-5 h-5" aria-hidden="true" /> {error}
           </div>
         )}
 
-        {viewMode === 'upload' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Eye className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.uploadSectionTitle}
-            </h2>
-
-            <div
-              className={`border-2 border-dashed border-gray-300 ${darkMode ? 'border-gray-600' : ''} rounded-xl p-10 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group
-              ${selectedImage ? 'hover:bg-transparent' : (darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50')}
-              ${loadingMessage ? 'pointer-events-none opacity-70' : 'hover:border-indigo-500 dark:hover:border-indigo-400'}
-              `}
-              onClick={() => !loadingMessage && fileInputRef.current.click()}
-              role="button"
-              tabIndex="0"
-              aria-label={selectedImage ? "Changer l'image du frigo" : "Télécharger une image de votre frigo"}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { !loadingMessage && fileInputRef.current.click(); } }}
+        <AnimatePresence mode='wait'>
+          {viewMode === 'upload' && (
+            <motion.section
+              key="upload"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                ref={fileInputRef}
-                className="hidden"
-                id="file-upload"
-              />
-              <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center justify-center h-full w-full">
-                {selectedImage ? (
-                  <>
-                    <img src={selectedImage} alt="Selected Fridge" className="max-h-64 object-contain rounded-lg mb-4 shadow-md transition-transform duration-300 group-hover:scale-105 animate-popIn" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl">
-                      <Camera className="w-12 h-12 text-white animate-float" aria-hidden="true" />
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Eye className="w-7 h-7" aria-hidden="true" /> {t.uploadSectionTitle}
+              </h2>
+
+              <div
+                className={`border-2 border-dashed border-gray-300 ${darkMode ? 'border-gray-600' : ''} rounded-xl p-10 text-center cursor-pointer transition-all duration-300 relative overflow-hidden group
+                ${selectedImage ? 'hover:bg-transparent' : (darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50')}
+                ${loadingMessage ? 'pointer-events-none opacity-70' : 'hover:border-indigo-500 dark:hover:border-indigo-400'}
+                `}
+                onClick={() => !loadingMessage && fileInputRef.current.click()}
+                role="button"
+                tabIndex="0"
+                aria-label={selectedImage ? "Changer l'image du frigo" : "Télécharger une image de votre frigo"}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { !loadingMessage && fileInputRef.current.click(); } }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  ref={fileInputRef}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center justify-center h-full w-full">
+                  {selectedImage ? (
+                    <>
+                      <img src={selectedImage} alt="Selected Fridge" className="max-h-64 object-contain rounded-lg mb-4 shadow-md transition-transform duration-300 group-hover:scale-105 animate-popIn" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl">
+                        <Camera className="w-12 h-12 text-white animate-float" aria-hidden="true" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center text-gray-500 dark:text-gray-400">
+                      <Camera className="w-16 h-16 mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" aria-hidden="true" />
+                      <p className="text-xl font-medium">{t.uploadSectionTitle}</p>
+                      <p className="text-sm mt-1">(JPEG, PNG, GIF)</p>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center text-gray-500 dark:text-gray-400">
-                    <Camera className="w-16 h-16 mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" aria-hidden="true" />
-                    <p className="text-xl font-medium">{t.uploadSectionTitle}</p>
-                    <p className="text-sm mt-1">(JPEG, PNG, GIF)</p>
+                  )}
+                </label>
+              </div>
+
+              <button
+                onClick={handleAnalyzeImage}
+                className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={!!loadingMessage || !selectedImage}
+                aria-label={loadingMessage ? loadingMessage : t.analyzeButton}
+              >
+                {loadingMessage && <LoadingSpinner />}
+                {loadingMessage ? loadingMessage : t.analyzeButton}
+              </button>
+
+              {detectedIngredients.length > 0 && (
+                <div className={`mt-8 p-6 border rounded-xl border-gray-200 ${darkMode ? 'border-gray-700 bg-gray-700' : 'bg-gray-50'} shadow-inner animate-fadeInUp glassmorphism`}>
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
+                    <Salad className="w-6 h-6" aria-hidden="true" /> {t.ingredientsDetected}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {detectedIngredients.map((ing, index) => (
+                      <span key={index} className={`flex items-center bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full ${darkMode ? 'bg-indigo-800 text-indigo-100' : ''} transition-all duration-200 transform hover:scale-105`}>
+                        <input
+                          type="text"
+                          value={ing.name}
+                          onChange={(e) => handleUpdateIngredientName(index, e.target.value)}
+                          className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-20`}
+                          aria-label={`Nom de l'ingrédient ${ing.name}`}
+                        />
+                        <input
+                          type="number"
+                          value={ing.quantity}
+                          onChange={(e) => handleUpdateIngredientQuantity(index, e.target.value)}
+                          className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-12 text-right ml-1`}
+                          min="0"
+                          aria-label={`Quantité de ${ing.name}`}
+                        />
+                        <select
+                          value={ing.unit}
+                          onChange={(e) => handleUpdateIngredientUnit(index, e.target.value)}
+                          className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-20 ml-1`}
+                          aria-label={`Unité de ${ing.name}`}
+                        >
+                          <option value="unit">{t.unitUnits}</option>
+                          <option value="none">{t.unitNone}</option>
+                          <option value="grams">{t.unitGrams}</option>
+                          <option value="kilograms">{t.unitKilograms}</option>
+                          <option value="milliliters">{t.unitMilliliters}</option>
+                          <option value="liters">{t.unitLiters}</option>
+                          <option value="cups">{t.unitCups}</option>
+                          <option value="spoons">{t.unitSpoons}</option>
+                        </select>
+                        {ing.expiryDate && (
+                          <span className="ml-2 text-xs opacity-80" aria-label={`Date de péremption : ${ing.expiryDate}`}>({ing.expiryDate})</span>
+                        )}
+                        <button
+                          onClick={() => handleRemoveIngredient(index)}
+                          className="ml-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-100 font-bold transition-transform hover:scale-125"
+                          aria-label={`Supprimer ${ing.name}`}
+                        >
+                          <X className="w-4 h-4" aria-hidden="true" />
+                        </button>
+                      </span>
+                    ))}
                   </div>
-                )}
-              </label>
-            </div>
 
-            <button
-              onClick={handleAnalyzeImage}
-              className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!!loadingMessage || !selectedImage}
-              aria-label={loadingMessage ? loadingMessage : t.analyzeButton}
-            >
-              {loadingMessage && <LoadingSpinner />}
-              {loadingMessage ? loadingMessage : t.analyzeButton}
-            </button>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder={t.placeholderIngredients}
+                      value={newIngredientInput}
+                      onChange={(e) => setNewIngredientInput(e.target.value)}
+                      className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.placeholderIngredients}
+                    />
+                    <input
+                      type="number"
+                      placeholder={t.addQuantity}
+                      value={newIngredientQuantity}
+                      onChange={(e) => setNewIngredientQuantity(e.target.value)}
+                      className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.addQuantity}
+                    />
+                    <select
+                      value={newIngredientUnit}
+                      onChange={(e) => setNewIngredientUnit(e.target.value)}
+                      className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.addUnit}
+                    >
+                      <option value="unit">{t.unitUnits}</option>
+                      <option value="none">{t.unitNone}</option>
+                      <option value="grams">{t.unitGrams}</option>
+                      <option value="kilograms">{t.unitKilograms}</option>
+                      <option value="milliliters">{t.unitMilliliters}</option>
+                      <option value="liters">{t.unitLiters}</option>
+                      <option value="cups">{t.unitCups}</option>
+                      <option value="spoons">{t.unitSpoons}</option>
+                    </select>
+                    <input
+                      type="date"
+                      placeholder={t.addExpiryDate}
+                      value={newIngredientExpiry}
+                      onChange={(e) => handleUpdateIngredientExpiry(e.target.value)}
+                      className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.addExpiryDate}
+                    />
+                    <button
+                      onClick={handleAddIngredient}
+                      className="col-span-full bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:-translate-y-1 active:scale-98"
+                      disabled={!newIngredientInput.trim()}
+                      aria-label={t.addIngredient}
+                    >
+                      <PlusCircle className="w-5 h-5 inline-block mr-2 transition-transform duration-200 group-hover:rotate-90" aria-hidden="true" /> {t.addIngredient}
+                    </button>
+                  </div>
 
-            {detectedIngredients.length > 0 && (
-              <div className={`mt-8 p-6 border rounded-xl border-gray-200 ${darkMode ? 'border-gray-700 bg-gray-700' : 'bg-gray-50'} shadow-inner animate-fadeInUp`}>
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
-                  <Salad className="w-6 h-6 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.ingredientsDetected}
-                </h3>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {detectedIngredients.map((ing, index) => (
-                    <span key={index} className={`flex items-center bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full ${darkMode ? 'bg-indigo-800 text-indigo-100' : ''} transition-all duration-200 transform hover:scale-105`}>
-                      <input
-                        type="text"
-                        value={ing.name}
-                        onChange={(e) => handleUpdateIngredientName(index, e.target.value)}
-                        className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-20`}
-                        aria-label={`Nom de l'ingrédient ${ing.name}`}
-                      />
-                      <input
-                        type="number"
-                        value={ing.quantity}
-                        onChange={(e) => handleUpdateIngredientQuantity(index, e.target.value)}
-                        className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-12 text-right ml-1`}
-                        min="0"
-                        aria-label={`Quantité de ${ing.name}`}
-                      />
+                  {/* New customization filters */}
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Cuisine Type */}
+                    <div>
+                      <label htmlFor="cuisine-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                        <ChefHat className="w-4 h-4" aria-hidden="true" /> {t.cuisineType}
+                      </label>
                       <select
-                        value={ing.unit}
-                        onChange={(e) => handleUpdateIngredientUnit(index, e.target.value)}
-                        className={`bg-transparent border-none outline-none focus:ring-0 ${darkMode ? 'text-indigo-100' : 'text-indigo-800'} w-20 ml-1`}
-                        aria-label={`Unité de ${ing.name}`}
+                        id="cuisine-type-select"
+                        value={cuisineType}
+                        onChange={(e) => setCuisineType(e.target.value)}
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={t.cuisineType}
                       >
-                        <option value="unit">{t.unitUnits}</option>
-                        <option value="none">{t.unitNone}</option>
-                        <option value="grams">{t.unitGrams}</option>
-                        <option value="kilograms">{t.unitKilograms}</option>
-                        <option value="milliliters">{t.unitMilliliters}</option>
-                        <option value="liters">{t.unitLiters}</option>
-                        <option value="cups">{t.unitCups}</option>
-                        <option value="spoons">{t.unitSpoons}</option>
+                        <option value="none">{t.cuisineNone}</option>
+                        <option value="french">{t.cuisineFrench}</option>
+                        <option value="italian">{t.cuisineItalian}</option>
+                        <option value="asian">{t.cuisineAsian}</option>
+                        <option value="mexican">{t.cuisineMexican}</option>
+                        <option value="indian">{t.cuisineIndian}</option>
+                        <option value="mediterranean">{t.cuisineMediterranean}</option>
+                        <option value="american">{t.cuisineAmerican}</option>
+                        <option value="other">{t.cuisineOther}</option>
                       </select>
-                      {ing.expiryDate && (
-                        <span className="ml-2 text-xs opacity-80" aria-label={`Date de péremption : ${ing.expiryDate}`}>({ing.expiryDate})</span>
-                      )}
-                      <button
-                        onClick={() => handleRemoveIngredient(index)}
-                        className="ml-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-100 font-bold transition-transform hover:scale-125"
-                        aria-label={`Supprimer ${ing.name}`}
-                      >
-                        <X className="w-4 h-4" aria-hidden="true" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <input
-                    type="text"
-                    placeholder={t.placeholderIngredients}
-                    value={newIngredientInput}
-                    onChange={(e) => setNewIngredientInput(e.target.value)}
-                    className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.placeholderIngredients}
-                  />
-                  <input
-                    type="number"
-                    placeholder={t.addQuantity}
-                    value={newIngredientQuantity}
-                    onChange={(e) => setNewIngredientQuantity(e.target.value)}
-                    className={`p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.addQuantity}
-                  />
-                  <select
-                    value={newIngredientUnit}
-                    onChange={(e) => setNewIngredientUnit(e.target.value)}
-                    className={`p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.addUnit}
-                  >
-                    <option value="unit">{t.unitUnits}</option>
-                    <option value="none">{t.unitNone}</option>
-                    <option value="grams">{t.unitGrams}</option>
-                    <option value="kilograms">{t.unitKilograms}</option>
-                    <option value="milliliters">{t.unitMilliliters}</option>
-                    <option value="liters">{t.unitLiters}</option>
-                    <option value="cups">{t.unitCups}</option>
-                    <option value="spoons">{t.unitSpoons}</option>
-                  </select>
-                  <input
-                    type="date"
-                    placeholder={t.addExpiryDate}
-                    value={newIngredientExpiry}
-                    onChange={(e) => handleUpdateIngredientExpiry(e.target.value)}
-                    className={`col-span-full md:col-span-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.addExpiryDate}
-                  />
+                    {/* Preparation Time */}
+                    <div>
+                      <label htmlFor="prep-time-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                        <Clock className="w-4 h-4" aria-hidden="true" /> {t.prepTime}
+                      </label>
+                      <select
+                        id="prep-time-select"
+                        value={preparationTime}
+                        onChange={(e) => setPreparationTime(e.target.value)}
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={t.prepTime}
+                      >
+                        <option value="none">{t.timeNone}</option>
+                        <option value="quick">{t.timeQuick}</option>
+                        <option value="medium">{t.timeMedium}</option>
+                        <option value="long">{t.timeLong}</option>
+                      </select>
+                    </div>
+
+                    {/* Difficulty */}
+                    <div>
+                      <label htmlFor="difficulty-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                        <TrendingUp className="w-4 h-4" aria-hidden="true" /> {t.difficulty}
+                      </label>
+                      <select
+                        id="difficulty-select"
+                        value={difficulty}
+                        onChange={(e) => setDifficulty(e.target.value)}
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={t.difficulty}
+                      >
+                        <option value="none">{t.difficultyNone}</option>
+                        <option value="easy">{t.difficultyEasy}</option>
+                        <option value="medium">{t.difficultyMedium}</option>
+                        <option value="hard">{t.difficultyHard}</option>
+                      </select>
+                    </div>
+
+                    {/* Dish Type */}
+                    <div>
+                      <label htmlFor="dish-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
+                        <Utensils className="w-4 h-4" aria-hidden="true" /> {t.dishType}
+                      </label>
+                      <select
+                        id="dish-type-select"
+                        value={dishType}
+                        onChange={(e) => setDishType(e.target.value)}
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={t.dishType}
+                      >
+                        <option value="none">{t.dishTypeNone}</option>
+                        <option value="main">{t.dishTypeMain}</option>
+                        <option value="dessert">{t.dishTypeDessert}</option>
+                        <option value="appetizer">{t.dishTypeAppetizer}</option>
+                        <option value="side">{t.dishTypeSide}</option>
+                        <option value="breakfast">{t.dishTypeBreakfast}</option>
+                        <option value="soup">{t.dishTypeSoup}</option>
+                        <option value="salad">{t.dishTypeSalad}</option>
+                        <option value="drink">{t.dishTypeDrink}</option>
+                      </select>
+                    </div>
+                  </div>
+
+
                   <button
-                    onClick={handleAddIngredient}
-                    className="col-span-full bg-indigo-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:-translate-y-1 active:scale-98"
-                    disabled={!newIngredientInput.trim()}
-                    aria-label={t.addIngredient}
+                    onClick={handleGenerateRecipe}
+                    className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    disabled={!!loadingMessage || detectedIngredients.length === 0}
+                    aria-label={loadingMessage ? loadingMessage : t.generateRecipeButton}
                   >
-                    <PlusCircle className="w-5 h-5 inline-block mr-2 transition-transform duration-200 group-hover:rotate-90" aria-hidden="true" /> {t.addIngredient}
+                    {loadingMessage && <LoadingSpinner />}
+                    {loadingMessage ? loadingMessage : t.generateRecipeButton}
                   </button>
                 </div>
+              )}
+            </motion.section>
+          )}
 
-                {/* New customization filters */}
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {viewMode === 'recipe' && (
+            <motion.section
+              key="recipe"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
+            >
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Utensils className="w-7 h-7" aria-hidden="true" /> {t.recipeTitle}
+              </h2>
+
+              {loadingMessage && (
+                <div className="py-8">
+                  <SkeletonLoader lines={10} className="w-full" />
+                  <p className="text-center text-lg text-indigo-600 dark:text-indigo-300 flex items-center justify-center gap-2 mt-4">
+                    <Flame className="w-6 h-6 animate-spin" aria-hidden="true" /> {loadingMessage}
+                  </p>
+                </div>
+              )}
+
+              {generatedRecipe && !loadingMessage && (
+                <div className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 glassmorphism`}>
+                  <div dangerouslySetInnerHTML={{ __html: generatedRecipe }}></div>
+                  <button
+                    onClick={copyRecipeToClipboard}
+                    className="mt-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2 transform hover:scale-105 active:scale-95"
+                    aria-label={copied ? t.copied : t.copyToClipboard}
+                  >
+                    {copied ? <CheckCircle className="w-4 h-4 text-emerald-500" aria-hidden="true" /> : <Clipboard className="w-4 h-4" aria-hidden="true" />}
+                    {copied ? t.copied : t.copyToClipboard}
+                  </button>
+                </div>
+              )}
+
+              {!generatedRecipe && !loadingMessage && (
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
+                  <p className="text-lg">{t.noIngredientsForRecipe}</p>
+                </div>
+              )}
+
+              {generatedRecipe && !loadingMessage && (
+                <div className="mt-6 flex flex-wrap gap-4 justify-center">
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`px-6 py-3 rounded-lg text-lg font-semibold transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg
+                      ${isFavorite(generatedRecipe) ? 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500' : 'bg-pink-500 text-white hover:bg-pink-600 focus:ring-pink-500'}
+                      transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2
+                    `}
+                    aria-label={isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
+                  >
+                    <Heart className="w-5 h-5" aria-hidden="true" /> {isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
+                  </button>
+                  <button
+                    onClick={() => resetAllStates()}
+                    className="px-6 py-3 rounded-lg text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    aria-label={t.newAnalysis}
+                  >
+                    <Camera className="w-5 h-5" aria-hidden="true" /> {t.newAnalysis}
+                  </button>
+                </div>
+              )}
+
+              {/* LLM Adaptations */}
+              {generatedRecipe && !loadingMessage && (
+                <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Améliorez votre recette :</h3>
+
+                  {/* Adapt Recipe */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowAdaptRecipeInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showAdaptRecipeInput}
+                      aria-controls="adapt-recipe-panel"
+                    >
+                      <span className="flex items-center gap-2"><Salad className="w-5 h-5" aria-hidden="true" /> {t.adaptRecipe}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showAdaptRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showAdaptRecipeInput && (
+                      <motion.div
+                        id="adapt-recipe-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterAdaptRequest}
+                          value={adaptRecipePrompt}
+                          onChange={(e) => setAdaptRecipePrompt(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterAdaptRequest}
+                        />
+                        <button
+                          onClick={handleAdaptRecipe}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !adaptRecipePrompt.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.adapt}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.adapt}
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Substitute Ingredient */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowSubstituteIngredientInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showSubstituteIngredientInput}
+                      aria-controls="substitute-ingredient-panel"
+                    >
+                      <span className="flex items-center gap-2"><Apple className="w-5 h-5" aria-hidden="true" /> {t.substituteIngredient}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showSubstituteIngredientInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showSubstituteIngredientInput && (
+                      <motion.div
+                        id="substitute-ingredient-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterIngredientToSubstitute}
+                          value={ingredientToSubstitute}
+                          onChange={(e) => setIngredientToSubstitute(e.target.value)}
+                          className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterIngredientToSubstitute}
+                        />
+                        <input
+                          type="text"
+                          placeholder={t.enterSubstituteWith}
+                          value={substituteWith}
+                          onChange={(e) => setSubstituteWith(e.target.value)}
+                          className={`p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterSubstituteWith}
+                        />
+                        <button
+                          onClick={handleSubstituteIngredient}
+                          className="md:col-span-2 bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !ingredientToSubstitute.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.substitute}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.substitute}
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Scale Recipe */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowScaleRecipeInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showScaleRecipeInput}
+                      aria-controls="scale-recipe-panel"
+                    >
+                      <span className="flex items-center gap-2"><Package className="w-5 h-5" aria-hidden="true" /> {t.scaleRecipe}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showScaleRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showScaleRecipeInput && (
+                      <motion.div
+                        id="scale-recipe-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="number"
+                          placeholder={t.enterServings}
+                          value={scaleServings}
+                          onChange={(e) => setScaleServings(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterServings}
+                        />
+                        <button
+                          onClick={handleScaleRecipe}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !scaleServings}
+                          aria-label={loadingMessage ? loadingMessage : t.scale}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.scale}
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Optimize Recipe Health */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowOptimizeRecipeInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showOptimizeRecipeInput}
+                      aria-controls="optimize-recipe-panel"
+                    >
+                      <span className="flex items-center gap-2"><Heart className="w-5 h-5" aria-hidden="true" /> {t.optimizeRecipeHealth}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showOptimizeRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showOptimizeRecipeInput && (
+                      <motion.div
+                        id="optimize-recipe-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterHealthGoals}
+                          value={optimizeRecipePrompt}
+                          onChange={(e) => setOptimizeRecipePrompt(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterHealthGoals}
+                        />
+                        <button
+                          onClick={handleOptimizeRecipeHealth}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !optimizeRecipePrompt.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.optimize}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.optimize}
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Ask Cooking Tip */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowCookingTipInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showCookingTipInput}
+                      aria-controls="cooking-tip-panel"
+                    >
+                      <span className="flex items-center gap-2"><Lightbulb className="w-5 h-5" aria-hidden="true" /> {t.askCookingTip}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showCookingTipInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showCookingTipInput && (
+                      <motion.div
+                        id="cooking-tip-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterCookingQuestion}
+                          value={cookingTipPrompt}
+                          onChange={(e) => setCookingTipPrompt(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterCookingQuestion}
+                        />
+                        <button
+                          onClick={handleAskCookingTip}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !cookingTipPrompt.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.ask}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.ask}
+                        </button>
+                        {cookingTipResult && (
+                          <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.cookingTip}</h4>
+                            <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: cookingTipResult }}></div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Meal Prep Guide */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={handleGenerateMealPrepGuide}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      disabled={!!loadingMessage || !generatedRecipe}
+                      aria-label={loadingMessage ? loadingMessage : t.mealPrepGuide}
+                    >
+                      <span className="flex items-center gap-2"><ChefHat className="w-5 h-5" aria-hidden="true" /> {t.mealPrepGuide}</span>
+                      {loadingMessage && <LoadingSpinner />}
+                      {!loadingMessage && <CheckCircle className="w-5 h-5 text-emerald-500" aria-hidden="true" />}
+                    </button>
+                  </div>
+
+                  {/* Food Pairing Suggestions */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowFoodPairingInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showFoodPairingInput}
+                      aria-controls="food-pairing-panel"
+                    >
+                      <span className="flex items-center gap-2"><Salad className="w-5 h-5" aria-hidden="true" /> {t.foodPairingSuggestions}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showFoodPairingInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showFoodPairingInput && (
+                      <motion.div
+                        id="food-pairing-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterFoodForPairing}
+                          value={foodPairingQuery}
+                          onChange={(e) => setFoodPairingQuery(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterFoodForPairing}
+                        />
+                        <button
+                          onClick={handleGetFoodPairingSuggestions}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !foodPairingQuery.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.ask}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.ask}
+                        </button>
+                        {foodPairingResult && (
+                          <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.foodPairingResultTitle} {foodPairingQuery} :</h4>
+                            <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: foodPairingResult }}></div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Get Ingredient Info */}
+                  <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden glassmorphism`}>
+                    <button
+                      onClick={() => setShowIngredientInfoInput(prev => !prev)}
+                      className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
+                      aria-expanded={showIngredientInfoInput}
+                      aria-controls="ingredient-info-panel"
+                    >
+                      <span className="flex items-center gap-2"><Search className="w-5 h-5" aria-hidden="true" /> {t.getIngredientInfo}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showIngredientInfoInput ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                    {showIngredientInfoInput && (
+                      <motion.div
+                        id="ingredient-info-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <input
+                          type="text"
+                          placeholder={t.enterIngredientName}
+                          value={ingredientInfoQuery}
+                          onChange={(e) => setIngredientInfoQuery(e.target.value)}
+                          className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                          disabled={!!loadingMessage}
+                          aria-label={t.enterIngredientName}
+                        />
+                        <button
+                          onClick={handleGetIngredientInfo}
+                          className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                          disabled={!!loadingMessage || !ingredientInfoQuery.trim()}
+                          aria-label={loadingMessage ? loadingMessage : t.ask}
+                        >
+                          {loadingMessage && <LoadingSpinner />}
+                          {loadingMessage ? loadingMessage : t.ask}
+                        </button>
+                        {ingredientInfoResult && (
+                          <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.ingredientInfo} :</h4>
+                            <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: ingredientInfoResult }}></div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+
+                </div>
+              )}
+            </motion.section>
+          )}
+
+          {viewMode === 'favorites' && (
+            <motion.section
+              key="favorites"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
+            >
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Heart className="w-7 h-7" aria-hidden="true" /> {t.favorites}
+              </h2>
+
+              {/* Filters for favorites */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner glassmorphism`}>
+                <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer les favoris :</h3>
+                <input
+                  type="text"
+                  placeholder={t.searchRecipes}
+                  value={favoriteSearchTerm}
+                  onChange={(e) => setFavoriteSearchTerm(e.target.value)}
+                  className={`w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                  aria-label={t.searchRecipes}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Cuisine Type */}
                   <div>
-                    <label htmlFor="cuisine-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                      <ChefHat className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.cuisineType}
-                    </label>
+                    <label htmlFor="fav-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
                     <select
-                      id="cuisine-type-select"
-                      value={cuisineType}
-                      onChange={(e) => setCuisineType(e.target.value)}
-                      className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                      aria-label={t.cuisineType}
+                      id="fav-cuisine-filter"
+                      value={favoriteCuisineFilter}
+                      onChange={(e) => setFavoriteCuisineFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByCuisine}
                     >
                       <option value="none">{t.cuisineNone}</option>
                       <option value="french">{t.cuisineFrench}</option>
@@ -1845,18 +2446,15 @@ export default function App() {
                       <option value="other">{t.cuisineOther}</option>
                     </select>
                   </div>
-
                   {/* Preparation Time */}
                   <div>
-                    <label htmlFor="prep-time-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                      <Clock className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.prepTime}
-                    </label>
+                    <label htmlFor="fav-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
                     <select
-                      id="prep-time-select"
-                      value={preparationTime}
-                      onChange={(e) => setPreparationTime(e.target.value)}
-                      className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                      aria-label={t.prepTime}
+                      id="fav-time-filter"
+                      value={favoriteTimeFilter}
+                      onChange={(e) => setFavoriteTimeFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByTime}
                     >
                       <option value="none">{t.timeNone}</option>
                       <option value="quick">{t.timeQuick}</option>
@@ -1864,18 +2462,15 @@ export default function App() {
                       <option value="long">{t.timeLong}</option>
                     </select>
                   </div>
-
                   {/* Difficulty */}
                   <div>
-                    <label htmlFor="difficulty-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.difficulty}
-                    </label>
+                    <label htmlFor="fav-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
                     <select
-                      id="difficulty-select"
-                      value={difficulty}
-                      onChange={(e) => setDifficulty(e.target.value)}
-                      className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                      aria-label={t.difficulty}
+                      id="fav-difficulty-filter"
+                      value={favoriteDifficultyFilter}
+                      onChange={(e) => setFavoriteDifficultyFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDifficulty}
                     >
                       <option value="none">{t.difficultyNone}</option>
                       <option value="easy">{t.difficultyEasy}</option>
@@ -1883,18 +2478,33 @@ export default function App() {
                       <option value="hard">{t.difficultyHard}</option>
                     </select>
                   </div>
-
+                  {/* Dietary Preference */}
+                  <div>
+                    <label htmlFor="fav-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
+                    <select
+                      id="fav-dietary-filter"
+                      value={favoriteDietaryFilter}
+                      onChange={(e) => setFavoriteDietaryFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDietary}
+                    >
+                      <option value="none">{t.dietaryNone}</option>
+                      <option value="vegetarian">{t.dietaryVegetarian}</option>
+                      <option value="vegan">{t.dietaryVegan}</option>
+                      <option value="gluten-free">{t.dietaryGlutenFree}</option>
+                      <option value="halal">{t.dietaryHalal}</option>
+                      <option value="kosher">{t.dietaryKosher}</option>
+                    </select>
+                  </div>
                   {/* Dish Type */}
                   <div>
-                    <label htmlFor="dish-type-select" className="block text-md font-semibold mb-2 text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
-                      <Utensils className="w-4 h-4 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.dishType}
-                    </label>
+                    <label htmlFor="fav-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
                     <select
-                      id="dish-type-select"
-                      value={dishType}
-                      onChange={(e) => setDishType(e.target.value)}
-                      className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                      aria-label={t.dishType}
+                      id="fav-dish-type-filter"
+                      value={favoriteDishTypeFilter}
+                      onChange={(e) => setFavoriteDishTypeFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDishType}
                     >
                       <option value="none">{t.dishTypeNone}</option>
                       <option value="main">{t.dishTypeMain}</option>
@@ -1907,889 +2517,502 @@ export default function App() {
                       <option value="drink">{t.dishTypeDrink}</option>
                     </select>
                   </div>
-                </div>
-
-
-                <button
-                  onClick={handleGenerateRecipe}
-                  className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  disabled={!!loadingMessage || detectedIngredients.length === 0}
-                  aria-label={loadingMessage ? loadingMessage : t.generateRecipeButton}
-                >
-                  {loadingMessage && <LoadingSpinner />}
-                  {loadingMessage ? loadingMessage : t.generateRecipeButton}
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {viewMode === 'recipe' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Utensils className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.recipeTitle}
-            </h2>
-
-            {loadingMessage && (
-              <div className="py-8">
-                <SkeletonLoader lines={10} className="w-full" />
-                <p className="text-center text-lg text-indigo-600 dark:text-indigo-300 flex items-center justify-center gap-2 mt-4">
-                  <Flame className="w-6 h-6 animate-spin" aria-hidden="true" /> {loadingMessage}
-                </p>
-              </div>
-            )}
-
-            {generatedRecipe && !loadingMessage && (
-              <div className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 animate-fadeIn`}>
-                <div dangerouslySetInnerHTML={{ __html: generatedRecipe }}></div>
-                <button
-                  onClick={copyRecipeToClipboard}
-                  className="mt-4 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200 flex items-center gap-2 transform hover:scale-105 active:scale-95"
-                  aria-label={copied ? t.copied : t.copyToClipboard}
-                >
-                  {copied ? <CheckCircle className="w-4 h-4 text-emerald-500" aria-hidden="true" /> : <Clipboard className="w-4 h-4" aria-hidden="true" />}
-                  {copied ? t.copied : t.copyToClipboard}
-                </button>
-              </div>
-            )}
-
-            {!generatedRecipe && !loadingMessage && (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
-                <p className="text-lg">{t.noIngredientsForRecipe}</p>
-              </div>
-            )}
-
-            {generatedRecipe && !loadingMessage && (
-              <div className="mt-6 flex flex-wrap gap-4 justify-center">
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`px-6 py-3 rounded-lg text-lg font-semibold transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg
-                    ${isFavorite(generatedRecipe) ? 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500' : 'bg-pink-500 text-white hover:bg-pink-600 focus:ring-pink-500'}
-                    transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2
-                  `}
-                  aria-label={isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
-                >
-                  <Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {isFavorite(generatedRecipe) ? t.removeFromFavorites : t.addToFavorites}
-                </button>
-                <button
-                  onClick={() => resetAllStates()}
-                  className="px-6 py-3 rounded-lg text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  aria-label={t.newAnalysis}
-                >
-                  <Camera className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.newAnalysis}
-                </button>
-              </div>
-            )}
-
-            {/* LLM Adaptations */}
-            {generatedRecipe && !loadingMessage && (
-              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Améliorez votre recette :</h3>
-
-                {/* Adapt Recipe */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
                   <button
-                    onClick={() => setShowAdaptRecipeInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showAdaptRecipeInput}
-                    aria-controls="adapt-recipe-panel"
+                    onClick={clearFavoriteFilters}
+                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+                    aria-label={t.clearFilters}
                   >
-                    <span className="flex items-center gap-2"><Salad className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.adaptRecipe}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showAdaptRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showAdaptRecipeInput && (
-                    <div id="adapt-recipe-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterAdaptRequest}
-                        value={adaptRecipePrompt}
-                        onChange={(e) => setAdaptRecipePrompt(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterAdaptRequest}
-                      />
-                      <button
-                        onClick={handleAdaptRecipe}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !adaptRecipePrompt.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.adapt}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.adapt}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Substitute Ingredient */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowSubstituteIngredientInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showSubstituteIngredientInput}
-                    aria-controls="substitute-ingredient-panel"
-                  >
-                    <span className="flex items-center gap-2"><Apple className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.substituteIngredient}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showSubstituteIngredientInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showSubstituteIngredientInput && (
-                    <div id="substitute-ingredient-panel" className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterIngredientToSubstitute}
-                        value={ingredientToSubstitute}
-                        onChange={(e) => setIngredientToSubstitute(e.target.value)}
-                        className={`p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterIngredientToSubstitute}
-                      />
-                      <input
-                        type="text"
-                        placeholder={t.enterSubstituteWith}
-                        value={substituteWith}
-                        onChange={(e) => setSubstituteWith(e.target.value)}
-                        className={`p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterSubstituteWith}
-                      />
-                      <button
-                        onClick={handleSubstituteIngredient}
-                        className="md:col-span-2 bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !ingredientToSubstitute.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.substitute}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.substitute}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Scale Recipe */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowScaleRecipeInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showScaleRecipeInput}
-                    aria-controls="scale-recipe-panel"
-                  >
-                    <span className="flex items-center gap-2"><Package className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.scaleRecipe}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showScaleRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showScaleRecipeInput && (
-                    <div id="scale-recipe-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="number"
-                        placeholder={t.enterServings}
-                        value={scaleServings}
-                        onChange={(e) => setScaleServings(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterServings}
-                      />
-                      <button
-                        onClick={handleScaleRecipe}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !scaleServings}
-                        aria-label={loadingMessage ? loadingMessage : t.scale}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.scale}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Optimize Recipe Health */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowOptimizeRecipeInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showOptimizeRecipeInput}
-                    aria-controls="optimize-recipe-panel"
-                  >
-                    <span className="flex items-center gap-2"><Heart className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.optimizeRecipeHealth}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showOptimizeRecipeInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showOptimizeRecipeInput && (
-                    <div id="optimize-recipe-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterHealthGoals}
-                        value={optimizeRecipePrompt}
-                        onChange={(e) => setOptimizeRecipePrompt(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterHealthGoals}
-                      />
-                      <button
-                        onClick={handleOptimizeRecipeHealth}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !optimizeRecipePrompt.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.optimize}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.optimize}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Ask Cooking Tip */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowCookingTipInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showCookingTipInput}
-                    aria-controls="cooking-tip-panel"
-                  >
-                    <span className="flex items-center gap-2"><Lightbulb className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.askCookingTip}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showCookingTipInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showCookingTipInput && (
-                    <div id="cooking-tip-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterCookingQuestion}
-                        value={cookingTipPrompt}
-                        onChange={(e) => setCookingTipPrompt(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterCookingQuestion}
-                      />
-                      <button
-                        onClick={handleAskCookingTip}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !cookingTipPrompt.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.ask}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.ask}
-                      </button>
-                      {cookingTipResult && (
-                        <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
-                          <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.cookingTip}</h4>
-                          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: cookingTipResult }}></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Meal Prep Guide */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={handleGenerateMealPrepGuide}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    disabled={!!loadingMessage || !generatedRecipe}
-                    aria-label={loadingMessage ? loadingMessage : t.mealPrepGuide}
-                  >
-                    <span className="flex items-center gap-2"><ChefHat className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.mealPrepGuide}</span>
-                    {loadingMessage && <LoadingSpinner />}
-                    {!loadingMessage && <CheckCircle className="w-5 h-5 text-emerald-500" aria-hidden="true" />}
+                    <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
                   </button>
                 </div>
-
-                {/* Food Pairing Suggestions */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowFoodPairingInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showFoodPairingInput}
-                    aria-controls="food-pairing-panel"
-                  >
-                    <span className="flex items-center gap-2"><Salad className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.foodPairingSuggestions}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showFoodPairingInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showFoodPairingInput && (
-                    <div id="food-pairing-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterFoodForPairing}
-                        value={foodPairingQuery}
-                        onChange={(e) => setFoodPairingQuery(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterFoodForPairing}
-                      />
-                      <button
-                        onClick={handleGetFoodPairingSuggestions}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !foodPairingQuery.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.ask}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.ask}
-                      </button>
-                      {foodPairingResult && (
-                        <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
-                          <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.foodPairingResultTitle} {foodPairingQuery} :</h4>
-                          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: foodPairingResult }}></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Get Ingredient Info */}
-                <div className={`mb-4 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-md transition-all duration-300 ease-in-out overflow-hidden`}>
-                  <button
-                    onClick={() => setShowIngredientInfoInput(prev => !prev)}
-                    className="w-full text-left font-semibold text-lg flex items-center justify-between py-2 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md"
-                    aria-expanded={showIngredientInfoInput}
-                    aria-controls="ingredient-info-panel"
-                  >
-                    <span className="flex items-center gap-2"><Search className="w-5 h-5 transition-transform duration-200 hover:scale-110" aria-hidden="true" /> {t.getIngredientInfo}</span>
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showIngredientInfoInput ? 'rotate-180' : ''}`} aria-hidden="true" />
-                  </button>
-                  {showIngredientInfoInput && (
-                    <div id="ingredient-info-panel" className="mt-4 animate-fadeIn">
-                      <input
-                        type="text"
-                        placeholder={t.enterIngredientName}
-                        value={ingredientInfoQuery}
-                        onChange={(e) => setIngredientInfoQuery(e.target.value)}
-                        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                        disabled={!!loadingMessage}
-                        aria-label={t.enterIngredientName}
-                      />
-                      <button
-                        onClick={handleGetIngredientInfo}
-                        className="mt-3 w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-                        disabled={!!loadingMessage || !ingredientInfoQuery.trim()}
-                        aria-label={loadingMessage ? loadingMessage : t.ask}
-                      >
-                        {loadingMessage && <LoadingSpinner />}
-                        {loadingMessage ? loadingMessage : t.ask}
-                      </button>
-                      {ingredientInfoResult && (
-                        <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
-                          <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.ingredientInfo} :</h4>
-                          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: ingredientInfoResult }}></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
               </div>
-            )}
-          </section>
-        )}
-
-        {viewMode === 'favorites' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Heart className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.favorites}
-            </h2>
-
-            {/* Filters for favorites */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner animate-fadeIn`}>
-              <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer les favoris :</h3>
-              <input
-                type="text"
-                placeholder={t.searchRecipes}
-                value={favoriteSearchTerm}
-                onChange={(e) => setFavoriteSearchTerm(e.target.value)}
-                className={`w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                aria-label={t.searchRecipes}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Cuisine Type */}
-                <div>
-                  <label htmlFor="fav-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
-                  <select
-                    id="fav-cuisine-filter"
-                    value={favoriteCuisineFilter}
-                    onChange={(e) => setFavoriteCuisineFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByCuisine}
-                  >
-                    <option value="none">{t.cuisineNone}</option>
-                    <option value="french">{t.cuisineFrench}</option>
-                    <option value="italian">{t.cuisineItalian}</option>
-                    <option value="asian">{t.cuisineAsian}</option>
-                    <option value="mexican">{t.cuisineMexican}</option>
-                    <option value="indian">{t.cuisineIndian}</option>
-                    <option value="mediterranean">{t.cuisineMediterranean}</option>
-                    <option value="american">{t.cuisineAmerican}</option>
-                    <option value="other">{t.cuisineOther}</option>
-                  </select>
-                </div>
-                {/* Preparation Time */}
-                <div>
-                  <label htmlFor="fav-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
-                  <select
-                    id="fav-time-filter"
-                    value={favoriteTimeFilter}
-                    onChange={(e) => setFavoriteTimeFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByTime}
-                  >
-                    <option value="none">{t.timeNone}</option>
-                    <option value="quick">{t.timeQuick}</option>
-                    <option value="medium">{t.timeMedium}</option>
-                    <option value="long">{t.timeLong}</option>
-                  </select>
-                </div>
-                {/* Difficulty */}
-                <div>
-                  <label htmlFor="fav-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
-                  <select
-                    id="fav-difficulty-filter"
-                    value={favoriteDifficultyFilter}
-                    onChange={(e) => setFavoriteDifficultyFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDifficulty}
-                  >
-                    <option value="none">{t.difficultyNone}</option>
-                    <option value="easy">{t.difficultyEasy}</option>
-                    <option value="medium">{t.difficultyMedium}</option>
-                    <option value="hard">{t.difficultyHard}</option>
-                  </select>
-                </div>
-                {/* Dietary Preference */}
-                <div>
-                  <label htmlFor="fav-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
-                  <select
-                    id="fav-dietary-filter"
-                    value={favoriteDietaryFilter}
-                    onChange={(e) => setFavoriteDietaryFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDietary}
-                  >
-                    <option value="none">{t.dietaryNone}</option>
-                    <option value="vegetarian">{t.dietaryVegetarian}</option>
-                    <option value="vegan">{t.dietaryVegan}</option>
-                    <option value="gluten-free">{t.dietaryGlutenFree}</option>
-                    <option value="halal">{t.dietaryHalal}</option>
-                    <option value="kosher">{t.dietaryKosher}</option>
-                  </select>
-                </div>
-                {/* Dish Type */}
-                <div>
-                  <label htmlFor="fav-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
-                  <select
-                    id="fav-dish-type-filter"
-                    value={favoriteDishTypeFilter}
-                    onChange={(e) => setFavoriteDishTypeFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDishType}
-                  >
-                    <option value="none">{t.dishTypeNone}</option>
-                    <option value="main">{t.dishTypeMain}</option>
-                    <option value="dessert">{t.dishTypeDessert}</option>
-                    <option value="appetizer">{t.dishTypeAppetizer}</option>
-                    <option value="side">{t.dishTypeSide}</option>
-                    <option value="breakfast">{t.dishTypeBreakfast}</option>
-                    <option value="soup">{t.dishTypeSoup}</option>
-                    <option value="salad">{t.dishTypeSalad}</option>
-                    <option value="drink">{t.dishTypeDrink}</option>
-                  </select>
-                </div>
-                <button
-                  onClick={clearFavoriteFilters}
-                  className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
-                  aria-label={t.clearFilters}
-                >
-                  <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
-                </button>
-              </div>
-            </div>
 
 
-            {filteredFavoriteRecipes.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
-                <p className="text-lg">{t.noFavorites}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredFavoriteRecipes.map(recipe => (
-                  <div key={recipe.id} className={`p-5 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-lg flex flex-col transition-transform duration-300 hover:scale-[1.02] transform hover:shadow-xl animate-fadeIn`}>
-                    <h3 className="text-lg font-semibold mb-3 text-indigo-600 dark:text-indigo-300">{recipe.title}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                      {recipe.filters && (
-                        <>
-                          {recipe.filters.cuisineType !== 'none' && `${t[`cuisine${recipe.filters.cuisineType.charAt(0).toUpperCase() + recipe.filters.cuisineType.slice(1)}`]} | `}
-                          {recipe.filters.preparationTime !== 'none' && `${t[`time${recipe.filters.preparationTime.charAt(0).toUpperCase() + recipe.filters.preparationTime.slice(1)}`]} | `}
-                          {recipe.filters.difficulty !== 'none' && `${t[`difficulty${recipe.filters.difficulty.charAt(0).toUpperCase() + recipe.filters.difficulty.slice(1)}`]} | `}
-                          {recipe.filters.dietaryPreference !== 'none' && `${t[`dietary${recipe.filters.dietaryPreference.charAt(0).toUpperCase() + recipe.filters.dietaryPreference.slice(1)}`]} | `}
-                          {recipe.filters.dishType !== 'none' && `${t[`dishType${recipe.filters.dishType.charAt(0).toUpperCase() + recipe.filters.dishType.slice(1)}`]}`}
-                        </>
-                      )}
-                    </p>
-                    <div className="prose dark:prose-invert max-w-none text-sm overflow-hidden h-32 mb-4">
-                      <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
-                    </div>
-                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
-                      <button
-                        onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
-                        className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        aria-label={t.viewRecipe}
-                      >
-                        {t.viewRecipe}
-                      </button>
-                      {!isFavorite(recipe.content) && (
+              {filteredFavoriteRecipes.length === 0 ? (
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
+                  <p className="text-lg">{t.noFavorites}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredFavoriteRecipes.map((recipe, index) => (
+                    <motion.div
+                      key={recipe.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
+                      className={`p-5 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-lg flex flex-col glassmorphism`}
+                    >
+                      <h3 className="text-lg font-semibold mb-3 text-indigo-600 dark:text-indigo-300">{recipe.title}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        {recipe.filters && (
+                          <>
+                            {recipe.filters.cuisineType !== 'none' && `${t[`cuisine${recipe.filters.cuisineType.charAt(0).toUpperCase() + recipe.filters.cuisineType.slice(1)}`]} | `}
+                            {recipe.filters.preparationTime !== 'none' && `${t[`time${recipe.filters.preparationTime.charAt(0).toUpperCase() + recipe.filters.preparationTime.slice(1)}`]} | `}
+                            {recipe.filters.difficulty !== 'none' && `${t[`difficulty${recipe.filters.difficulty.charAt(0).toUpperCase() + recipe.filters.difficulty.slice(1)}`]} | `}
+                            {recipe.filters.dietaryPreference !== 'none' && `${t[`dietary${recipe.filters.dietaryPreference.charAt(0).toUpperCase() + recipe.filters.dietaryPreference.slice(1)}`]} | `}
+                            {recipe.filters.dishType !== 'none' && `${t[`dishType${recipe.filters.dishType.charAt(0).toUpperCase() + recipe.filters.dishType.slice(1)}`]}`}
+                          </>
+                        )}
+                      </p>
+                      <div className="prose dark:prose-invert max-w-none text-sm overflow-hidden h-32 mb-4">
+                        <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
+                      </div>
+                      <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
                         <button
-                          onClick={async () => {
-                            if (!db || !userId) { // Check if db is initialized
-                              showModal(t.firebaseNotInitialized, closeModal, closeModal);
-                              return;
-                            }
-                            try {
-                              const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
-                              await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
-                                title: recipe.title,
-                                content: recipe.content,
-                                date: recipe.date,
-                                filters: recipe.filters
-                              }, { merge: true });
-                              showModal(`${t.addToFavorites} !`, closeModal, closeModal);
-                            } catch (e) {
-                              handleError("Erreur lors de l'ajout aux favoris :", e);
-                            }
-                          }}
-                          className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-full p-1"
-                          aria-label={t.addToFavorites}
+                          onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
+                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          aria-label={t.viewRecipe}
                         >
-                          <Heart className="w-5 h-5" aria-hidden="true" />
+                          {t.viewRecipe}
                         </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {viewMode === 'history' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <History className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.history}
-            </h2>
-
-            {/* Filters for history (reusing same states as favorites for demo) */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner animate-fadeIn`}>
-              <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer l'historique :</h3>
-              <input
-                type="text"
-                placeholder={t.searchRecipes}
-                value={favoriteSearchTerm}
-                onChange={(e) => setFavoriteSearchTerm(e.target.value)}
-                className={`w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
-                aria-label={t.searchRecipes}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Cuisine Type */}
-                <div>
-                  <label htmlFor="hist-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
-                  <select
-                    id="hist-cuisine-filter"
-                    value={favoriteCuisineFilter}
-                    onChange={(e) => setFavoriteCuisineFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByCuisine}
-                  >
-                    <option value="none">{t.cuisineNone}</option>
-                    <option value="french">{t.cuisineFrench}</option>
-                    <option value="italian">{t.cuisineItalian}</option>
-                    <option value="asian">{t.cuisineAsian}</option>
-                    <option value="mexican">{t.cuisineMexican}</option>
-                    <option value="indian">{t.cuisineIndian}</option>
-                    <option value="mediterranean">{t.cuisineMediterranean}</option>
-                    <option value="american">{t.cuisineAmerican}</option>
-                    <option value="other">{t.cuisineOther}</option>
-                  </select>
-                </div>
-                {/* Preparation Time */}
-                <div>
-                  <label htmlFor="hist-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
-                  <select
-                    id="hist-time-filter"
-                    value={favoriteTimeFilter}
-                    onChange={(e) => setFavoriteTimeFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByTime}
-                  >
-                    <option value="none">{t.timeNone}</option>
-                    <option value="quick">{t.timeQuick}</option>
-                    <option value="medium">{t.timeMedium}</option>
-                    <option value="long">{t.timeLong}</option>
-                  </select>
-                </div>
-                {/* Difficulty */}
-                <div>
-                  <label htmlFor="hist-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
-                  <select
-                    id="hist-difficulty-filter"
-                    value={favoriteDifficultyFilter}
-                    onChange={(e) => setFavoriteDifficultyFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDifficulty}
-                  >
-                    <option value="none">{t.difficultyNone}</option>
-                    <option value="easy">{t.difficultyEasy}</option>
-                    <option value="medium">{t.difficultyMedium}</option>
-                    <option value="hard">{t.difficultyHard}</option>
-                  </select>
-                </div>
-                {/* Dietary Preference */}
-                <div>
-                  <label htmlFor="hist-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
-                  <select
-                    id="hist-dietary-filter"
-                    value={favoriteDietaryFilter}
-                    onChange={(e) => setFavoriteDietaryFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDietary}
-                  >
-                    <option value="none">{t.dietaryNone}</option>
-                    <option value="vegetarian">{t.dietaryVegetarian}</option>
-                    <option value="vegan">{t.dietaryVegan}</option>
-                    <option value="gluten-free">{t.dietaryGlutenFree}</option>
-                    <option value="halal">{t.dietaryHalal}</option>
-                    <option value="kosher">{t.dietaryKosher}</option>
-                  </select>
-                </div>
-                {/* Dish Type */}
-                <div>
-                  <label htmlFor="hist-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
-                  <select
-                    id="hist-dish-type-filter"
-                    value={favoriteDishTypeFilter}
-                    onChange={(e) => setFavoriteDishTypeFilter(e.target.value)}
-                    className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                    aria-label={t.filterByDishType}
-                  >
-                    <option value="none">{t.dishTypeNone}</option>
-                    <option value="main">{t.dishTypeMain}</option>
-                    <option value="dessert">{t.dishTypeDessert}</option>
-                    <option value="appetizer">{t.dishTypeAppetizer}</option>
-                    <option value="side">{t.dishTypeSide}</option>
-                    <option value="breakfast">{t.dishTypeBreakfast}</option>
-                    <option value="soup">{t.dishTypeSoup}</option>
-                    <option value="salad">{t.dishTypeSalad}</option>
-                    <option value="drink">{t.dishTypeDrink}</option>
-                  </select>
-                </div>
-                <button
-                  onClick={clearFavoriteFilters}
-                  className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
-                  aria-label={t.clearFilters}
-                >
-                  <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
-                </button>
-              </div>
-            </div>
-
-            {filteredHistoryRecipes.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
-                <p className="text-lg">{t.noHistory}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredHistoryRecipes.map(recipe => (
-                  <div key={recipe.id} className={`p-5 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-lg flex flex-col transition-transform duration-300 hover:scale-[1.02] transform hover:shadow-xl animate-fadeIn`}>
-                    <h3 className="text-lg font-semibold mb-3 text-indigo-600 dark:text-indigo-300">{recipe.title}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                      {recipe.date}
-                      {recipe.filters && (
-                        <>
-                          {recipe.filters.cuisineType !== 'none' && ` | ${t[`cuisine${recipe.filters.cuisineType.charAt(0).toUpperCase() + recipe.filters.cuisineType.slice(1)}`]}`}
-                          {recipe.filters.preparationTime !== 'none' && ` | ${t[`time${recipe.filters.preparationTime.charAt(0).toUpperCase() + recipe.filters.preparationTime.slice(1)}`]}`}
-                          {recipe.filters.difficulty !== 'none' && ` | ${t[`difficulty${recipe.filters.difficulty.charAt(0).toUpperCase() + recipe.filters.difficulty.slice(1)}`]}`}
-                          {recipe.filters.dietaryPreference !== 'none' && ` | ${t[`dietary${recipe.filters.dietaryPreference.charAt(0).toUpperCase() + recipe.filters.dietaryPreference.slice(1)}`]}`}
-                          {recipe.filters.dishType !== 'none' && ` | ${t[`dishType${recipe.filters.dishType.charAt(0).toUpperCase() + recipe.filters.dishType.slice(1)}`]}`}
-                        </>
-                      )}
-                    </p>
-                    <div className="prose dark:prose-invert max-w-none text-sm overflow-hidden h-32 mb-4">
-                      <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
-                    </div>
-                    <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
-                      <button
-                        onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
-                        className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        aria-label={t.viewRecipe}
-                      >
-                        {t.viewRecipe}
-                      </button>
-                      {!isFavorite(recipe.content) && (
                         <button
-                          onClick={async () => {
-                            if (!db || !userId) { // Check if db is initialized
-                              showModal(t.firebaseNotInitialized, closeModal, closeModal);
-                              return;
-                            }
-                            try {
-                              const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
-                              await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
-                                title: recipe.title,
-                                content: recipe.content,
-                                date: recipe.date,
-                                filters: recipe.filters
-                              }, { merge: true });
-                              showModal(`${t.addToFavorites} !`, closeModal, closeModal);
-                            } catch (e) {
-                              handleError("Erreur lors de l'ajout aux favoris :", e);
-                            }
-                          }}
-                          className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-full p-1"
-                          aria-label={t.addToFavorites}
+                          onClick={() => handleDeleteFavorite(recipe.id)}
+                          className="text-red-500 hover:text-red-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-1"
+                          aria-label={t.removeFromFavorites}
                         >
-                          <Heart className="w-5 h-5" aria-hidden="true" />
+                          <X className="w-5 h-5" aria-hidden="true" />
                         </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.section>
+          )}
 
-        {viewMode === 'dailyRecipe' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Sun className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.recipeOfTheDay}
-            </h2>
-            {loadingMessage ? (
-              <div className="py-8">
-                <SkeletonLoader lines={10} className="w-full" />
-                <p className="text-center text-lg text-indigo-600 dark:text-indigo-300 flex items-center justify-center gap-2 mt-4">
-                  <Flame className="w-6 h-6 animate-spin" aria-hidden="true" /> {loadingMessage}
-                </p>
-              </div>
-            ) : dailyRecipe ? (
-              <div className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 animate-fadeIn`}>
-                <div dangerouslySetInnerHTML={{ __html: dailyRecipe }}></div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <CalendarOff className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
-                <p className="text-lg">{t.noDailyRecipe}</p>
-              </div>
-            )}
-            <button
-              onClick={() => fetchDailyRecipe()}
-              className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={!!loadingMessage}
-              aria-label={loadingMessage ? loadingMessage : t.recipeOfTheDay}
+          {viewMode === 'history' && (
+            <motion.section
+              key="history"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
             >
-              {loadingMessage && <LoadingSpinner />}
-              {loadingMessage ? loadingMessage : t.recipeOfTheDay}
-            </button>
-          </section>
-        )}
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <History className="w-7 h-7" aria-hidden="true" /> {t.history}
+              </h2>
 
-        {viewMode === 'settings' && (
-          <section className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 animate-fadeInUp`}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Settings className="w-7 h-7 transition-transform duration-200 hover:scale-110 hover:rotate-3" aria-hidden="true" /> {t.settings}
-            </h2>
-
-            {/* User ID Display */}
-            {userId && (
-              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center gap-3 animate-fadeIn`}>
-                <User className="w-6 h-6 text-indigo-600 dark:text-indigo-300" aria-hidden="true" />
-                <span className="text-lg font-semibold">{t.userIdDisplay}</span>
-                <span className="break-all font-mono text-sm text-gray-700 dark:text-gray-300">{userId}</span>
+              {/* Filters for history (reusing same states as favorites for demo) */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-inner glassmorphism`}>
+                <h3 className="text-xl font-bold mb-4 text-indigo-700 dark:text-indigo-400">Filtrer l'historique :</h3>
+                <input
+                  type="text"
+                  placeholder={t.searchRecipes}
+                  value={favoriteSearchTerm}
+                  onChange={(e) => setFavoriteSearchTerm(e.target.value)}
+                  className={`w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                  aria-label={t.searchRecipes}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Cuisine Type */}
+                  <div>
+                    <label htmlFor="hist-cuisine-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByCuisine}</label>
+                    <select
+                      id="hist-cuisine-filter"
+                      value={favoriteCuisineFilter}
+                      onChange={(e) => setFavoriteCuisineFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByCuisine}
+                    >
+                      <option value="none">{t.cuisineNone}</option>
+                      <option value="french">{t.cuisineFrench}</option>
+                      <option value="italian">{t.cuisineItalian}</option>
+                      <option value="asian">{t.cuisineAsian}</option>
+                      <option value="mexican">{t.cuisineMexican}</option>
+                      <option value="indian">{t.cuisineIndian}</option>
+                      <option value="mediterranean">{t.cuisineMediterranean}</option>
+                      <option value="american">{t.cuisineAmerican}</option>
+                      <option value="other">{t.cuisineOther}</option>
+                    </select>
+                  </div>
+                  {/* Preparation Time */}
+                  <div>
+                    <label htmlFor="hist-time-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByTime}</label>
+                    <select
+                      id="hist-time-filter"
+                      value={favoriteTimeFilter}
+                      onChange={(e) => setFavoriteTimeFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByTime}
+                    >
+                      <option value="none">{t.timeNone}</option>
+                      <option value="quick">{t.timeQuick}</option>
+                      <option value="medium">{t.timeMedium}</option>
+                      <option value="long">{t.timeLong}</option>
+                    </select>
+                  </div>
+                  {/* Difficulty */}
+                  <div>
+                    <label htmlFor="hist-difficulty-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDifficulty}</label>
+                    <select
+                      id="hist-difficulty-filter"
+                      value={favoriteDifficultyFilter}
+                      onChange={(e) => setFavoriteDifficultyFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDifficulty}
+                    >
+                      <option value="none">{t.difficultyNone}</option>
+                      <option value="easy">{t.difficultyEasy}</option>
+                      <option value="medium">{t.difficultyMedium}</option>
+                      <option value="hard">{t.difficultyHard}</option>
+                    </select>
+                  </div>
+                  {/* Dietary Preference */}
+                  <div>
+                    <label htmlFor="hist-dietary-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDietary}</label>
+                    <select
+                      id="hist-dietary-filter"
+                      value={favoriteDietaryFilter}
+                      onChange={(e) => setFavoriteDietaryFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDietary}
+                    >
+                      <option value="none">{t.dietaryNone}</option>
+                      <option value="vegetarian">{t.dietaryVegetarian}</option>
+                      <option value="vegan">{t.dietaryVegan}</option>
+                      <option value="gluten-free">{t.dietaryGlutenFree}</option>
+                      <option value="halal">{t.dietaryHalal}</option>
+                      <option value="kosher">{t.dietaryKosher}</option>
+                    </select>
+                  </div>
+                  {/* Dish Type */}
+                  <div>
+                    <label htmlFor="hist-dish-type-filter" className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{t.filterByDishType}</label>
+                    <select
+                      id="hist-dish-type-filter"
+                      value={favoriteDishTypeFilter}
+                      onChange={(e) => setFavoriteDishTypeFilter(e.target.value)}
+                      className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                      aria-label={t.filterByDishType}
+                    >
+                      <option value="none">{t.dishTypeNone}</option>
+                      <option value="main">{t.dishTypeMain}</option>
+                      <option value="dessert">{t.dishTypeDessert}</option>
+                      <option value="appetizer">{t.dishTypeAppetizer}</option>
+                      <option value="side">{t.dishTypeSide}</option>
+                      <option value="breakfast">{t.dishTypeBreakfast}</option>
+                      <option value="soup">{t.dishTypeSoup}</option>
+                      <option value="salad">{t.dishTypeSalad}</option>
+                      <option value="drink">{t.dishTypeDrink}</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={clearFavoriteFilters}
+                    className="col-span-full bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 transition-colors duration-200 transform hover:scale-105 active:scale-95"
+                    aria-label={t.clearFilters}
+                  >
+                    <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearFilters}
+                  </button>
+                </div>
               </div>
-            )}
 
+              {filteredHistoryRecipes.length === 0 ? (
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  <BookOpenText className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
+                  <p className="text-lg">{t.noHistory}</p>
+                </div>
+              ) : (
+                <div className="relative pl-6 md:pl-12">
+                  {filteredHistoryRecipes.map((recipe, index) => (
+                    <motion.div
+                      key={recipe.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className={`mb-8 p-5 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white'} shadow-lg glassmorphism relative`}
+                    >
+                      {/* Timeline dot and line */}
+                      <div className="absolute left-[-20px] md:left-[-40px] top-0 h-full flex flex-col items-center">
+                        <div className="w-4 h-4 rounded-full bg-indigo-500 dark:bg-indigo-400 z-10 flex-shrink-0"></div>
+                        {index < filteredHistoryRecipes.length - 1 && (
+                          <div className="w-0.5 bg-indigo-300 dark:bg-indigo-600 flex-grow"></div>
+                        )}
+                      </div>
 
-            {/* Language Selection */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm animate-fadeIn`}>
-              <label htmlFor="language-select" className="block text-lg font-semibold mb-2">
-                {t.languageSelection}
-              </label>
-              <select
-                id="language-select"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                aria-label={t.languageSelection}
-              >
-                <option value="fr">{t.languageFrench}</option>
-                <option value="en">{t.languageEnglish}</option>
-                <option value="de">{t.languageGerman}</option>
-                <option value="es">{t.languageSpanish}</option>
-                <option value="it">{t.languageItalian}</option>
-              </select>
-            </div>
+                      <h3 className="text-lg font-semibold mb-3 text-indigo-600 dark:text-indigo-300">{recipe.title}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        {recipe.date}
+                        {recipe.filters && (
+                          <>
+                            {recipe.filters.cuisineType !== 'none' && ` | ${t[`cuisine${recipe.filters.cuisineType.charAt(0).toUpperCase() + recipe.filters.cuisineType.slice(1)}`]}`}
+                            {recipe.filters.preparationTime !== 'none' && ` | ${t[`time${recipe.filters.preparationTime.charAt(0).toUpperCase() + recipe.filters.preparationTime.slice(1)}`]}`}
+                            {recipe.filters.difficulty !== 'none' && ` | ${t[`difficulty${recipe.filters.difficulty.charAt(0).toUpperCase() + recipe.filters.difficulty.slice(1)}`]}`}
+                            {recipe.filters.dietaryPreference !== 'none' && ` | ${t[`dietary${recipe.filters.dietaryPreference.charAt(0).toUpperCase() + recipe.filters.dietaryPreference.slice(1)}`]}`}
+                            {recipe.filters.dishType !== 'none' && ` | ${t[`dishType${recipe.filters.dishType.charAt(0).toUpperCase() + recipe.filters.dishType.slice(1)}`]}`}
+                          </>
+                        )}
+                      </p>
+                      <div className="prose dark:prose-invert max-w-none text-sm overflow-hidden h-32 mb-4">
+                        <div dangerouslySetInnerHTML={{ __html: recipe.content }}></div>
+                      </div>
+                      <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <button
+                          onClick={() => { setGeneratedRecipe(recipe.content); setViewMode('recipe'); }}
+                          className="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          aria-label={t.viewRecipe}
+                        >
+                          {t.viewRecipe}
+                        </button>
+                        {!isFavorite(recipe.content) && (
+                          <button
+                            onClick={async () => {
+                              if (!db || !userId) { // Check if db is initialized
+                                showModal(t.firebaseNotInitialized, closeModal, closeModal);
+                                return;
+                              }
+                              try {
+                                const docId = btoa(recipe.content.substring(0, 100)).replace(/=/g, '');
+                                await setDoc(doc(db, `artifacts/${appId}/users/${userId}/favorite_recipes`, docId), {
+                                  title: recipe.title,
+                                  content: recipe.content,
+                                  date: recipe.date,
+                                  filters: recipe.filters
+                                }, { merge: true });
+                                showModal(`${t.addToFavorites} !`, closeModal, closeModal);
+                              } catch (e) {
+                                handleError("Erreur lors de l'ajout aux favoris :", e);
+                              }
+                            }}
+                            className="text-pink-500 hover:text-pink-700 transition-colors duration-300 ml-4 transform hover:scale-125 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-full p-1"
+                            aria-label={t.addToFavorites}
+                          >
+                            <Heart className="w-5 h-5" aria-hidden="true" />
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.section>
+          )}
 
-            {/* Dark Mode Toggle */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center justify-between animate-fadeIn`}>
-              <span className="text-lg font-semibold">Mode Sombre :</span>
+          {viewMode === 'dailyRecipe' && (
+            <motion.section
+              key="dailyRecipe"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
+            >
+              <div className="relative h-48 w-full rounded-xl overflow-hidden mb-6 shadow-md">
+                <img
+                  src="https://placehold.co/600x200/FFDDC1/FF6B6B?text=Recette+du+Jour"
+                  alt="Daily Recipe Header"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                  <h2 className="text-3xl font-extrabold text-white flex items-center gap-3">
+                    <Sun className="w-8 h-8" aria-hidden="true" /> {t.recipeOfTheDay}
+                  </h2>
+                </div>
+              </div>
+
+              {loadingMessage ? (
+                <div className="py-8">
+                  <SkeletonLoader lines={10} className="w-full" />
+                  <p className="text-center text-lg text-indigo-600 dark:text-indigo-300 flex items-center justify-center gap-2 mt-4">
+                    <Flame className="w-6 h-6 animate-spin" aria-hidden="true" /> {loadingMessage}
+                  </p>
+                </div>
+              ) : dailyRecipe ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className={`prose dark:prose-invert max-w-none p-6 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-700'} shadow-inner mb-6 glassmorphism`}
+                >
+                  <div dangerouslySetInnerHTML={{ __html: dailyRecipe }}></div>
+                </motion.div>
+              ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  <CalendarOff className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600 animate-float" aria-hidden="true" />
+                  <p className="text-lg">{t.noDailyRecipe}</p>
+                </div>
+              )}
               <button
-                onClick={() => setDarkMode(prev => !prev)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${darkMode ? 'bg-indigo-600' : 'bg-gray-200'} focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-                aria-pressed={darkMode}
-                aria-label={`Toggle dark mode, currently ${darkMode ? t.darkModeOn : t.darkModeOff}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
-              </button>
-              <span className="text-sm ml-2">
-                {darkMode ? t.darkModeOn : t.darkModeOff}
-              </span>
-            </div>
-
-            {/* Dietary Preferences */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm animate-fadeIn`}>
-              <label htmlFor="dietary-preference-select" className="block text-lg font-semibold mb-2">
-                {t.dietaryPreferences}
-              </label>
-              <select
-                id="dietary-preference-select"
-                value={dietaryPreference}
-                onChange={(e) => setDietaryPreference(e.target.value)}
-                className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
-                aria-label={t.dietaryPreferences}
-              >
-                <option value="none">{t.dietaryNone}</option>
-                <option value="vegetarian">{t.dietaryVegetarian}</option>
-                <option value="vegan">{t.dietaryVegan}</option>
-                <option value="gluten-free">{t.dietaryGlutenFree}</option>
-                <option value="halal">{t.dietaryHalal}</option>
-                <option value="kosher">{t.dietaryKosher}</option>
-              </select>
-            </div>
-
-
-            {/* Cooking Streak */}
-            <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm animate-fadeIn`}>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Flame className="w-5 h-5 text-indigo-600 transition-transform duration-200 hover:scale-110" aria-hidden="true" />{t.myCookingStreak} : <span className="text-indigo-600 dark:text-indigo-300 font-bold">{cookingStreak} {cookingStreak > 1 ? 'jours' : 'jour'}</span></h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Enregistrez un plat cuisiné chaque jour pour augmenter votre série ! Dernière connexion : {lastCookingLogDate || 'Jamais'}
-              </p>
-              <button
-                onClick={handleUploadMealPhoto}
-                className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
-                disabled={!!loadingMessage || !selectedImage}
-                aria-label={loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
+                onClick={() => fetchDailyRecipe()}
+                className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-lg text-xl font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-1 active:scale-98 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={!!loadingMessage}
+                aria-label={loadingMessage ? loadingMessage : t.recipeOfTheDay}
               >
                 {loadingMessage && <LoadingSpinner />}
-                {loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
+                {loadingMessage ? loadingMessage : t.recipeOfTheDay}
               </button>
-            </div>
+            </motion.section>
+          )}
 
-            {/* Clear All Data */}
-            <div className={`mt-8 p-4 rounded-xl border border-red-300 ${darkMode ? 'bg-red-900 border-red-700' : 'bg-red-50'} shadow-sm animate-fadeIn`}>
-              <button
-                onClick={handleClearAllData}
-                className="w-full bg-red-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-red-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
-                aria-label={t.clearAllData}
-              >
-                <Eraser className="w-5 h-5 inline-block mr-2 transition-transform duration-200 hover:rotate-12" aria-hidden="true" /> {t.clearAllData}
-              </button>
-            </div>
-          </section>
-        )}
+          {viewMode === 'settings' && (
+            <motion.section
+              key="settings"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className={`p-8 rounded-xl shadow-2xl ${darkMode ? 'bg-gray-800' : 'bg-white'} transition-shadow duration-300 glassmorphism`}
+            >
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Settings className="w-7 h-7" aria-hidden="true" /> {t.settings}
+              </h2>
+
+              {/* User ID Display */}
+              {userId && (
+                <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center gap-3 glassmorphism`}>
+                  <User className="w-6 h-6 text-indigo-600 dark:text-indigo-300" aria-hidden="true" />
+                  <span className="text-lg font-semibold">{t.userIdDisplay}</span>
+                  <span className="break-all font-mono text-sm text-gray-700 dark:text-gray-300">{userId}</span>
+                </div>
+              )}
+
+
+              {/* Language Selection */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
+                <label htmlFor="language-select" className="block text-lg font-semibold mb-2">
+                  {t.languageSelection}
+                </label>
+                <select
+                  id="language-select"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                  aria-label={t.languageSelection}
+                >
+                  <option value="fr">{t.languageFrench}</option>
+                  <option value="en">{t.languageEnglish}</option>
+                  <option value="de">{t.languageGerman}</option>
+                  <option value="es">{t.languageSpanish}</option>
+                  <option value="it">{t.languageItalian}</option>
+                </select>
+              </div>
+
+              {/* Dark Mode Toggle */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm flex items-center justify-between glassmorphism`}>
+                <span className="text-lg font-semibold">Mode Sombre :</span>
+                <button
+                  onClick={() => setDarkMode(prev => !prev)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${darkMode ? 'bg-indigo-600' : 'bg-gray-200'} focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                  aria-pressed={darkMode}
+                  aria-label={`Toggle dark mode, currently ${darkMode ? t.darkModeOn : t.darkModeOff}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+                <span className="text-sm ml-2">
+                  {darkMode ? t.darkModeOn : t.darkModeOff}
+                </span>
+              </div>
+
+              {/* Dietary Preferences */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
+                <label htmlFor="dietary-preference-select" className="block text-lg font-semibold mb-2">
+                  {t.dietaryPreferences}
+                </label>
+                <select
+                  id="dietary-preference-select"
+                  value={dietaryPreference}
+                  onChange={(e) => setDietaryPreference(e.target.value)}
+                  className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100' : 'bg-white text-gray-800'} transition-all duration-200`}
+                  aria-label={t.dietaryPreferences}
+                >
+                  <option value="none">{t.dietaryNone}</option>
+                  <option value="vegetarian">{t.dietaryVegetarian}</option>
+                  <option value="vegan">{t.dietaryVegan}</option>
+                  <option value="gluten-free">{t.dietaryGlutenFree}</option>
+                  <option value="halal">{t.dietaryHalal}</option>
+                  <option value="kosher">{t.dietaryKosher}</option>
+                </select>
+              </div>
+
+
+              {/* Cooking Streak */}
+              <div className={`mb-6 p-4 rounded-xl border border-gray-200 ${darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50'} shadow-sm glassmorphism`}>
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Flame className="w-5 h-5 text-indigo-600" aria-hidden="true" />{t.myCookingStreak} : <span className="text-indigo-600 dark:text-indigo-300 font-bold">{cookingStreak} {cookingStreak > 1 ? 'jours' : 'jour'}</span></h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Enregistrez un plat cuisiné chaque jour pour augmenter votre série ! Dernière connexion : {lastCookingLogDate || 'Jamais'}
+                </p>
+                <button
+                  onClick={handleUploadMealPhoto}
+                  className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95"
+                  disabled={!!loadingMessage || !selectedImage}
+                  aria-label={loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
+                >
+                  {loadingMessage && <LoadingSpinner />}
+                  {loadingMessage ? loadingMessage : t.uploadMealPhotoButton}
+                </button>
+              </div>
+
+              {/* Clear All Data */}
+              <div className={`mt-8 p-4 rounded-xl border border-red-300 ${darkMode ? 'bg-red-900 border-red-700' : 'bg-red-50'} shadow-sm glassmorphism`}>
+                <button
+                  onClick={handleClearAllData}
+                  className="w-full bg-red-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-red-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  aria-label={t.clearAllData}
+                >
+                  <Eraser className="w-5 h-5 inline-block mr-2" aria-hidden="true" /> {t.clearAllData}
+                </button>
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </main>
+
+      {/* Bottom Navigation Bar */}
+      <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? 'bg-gray-800' : 'bg-white'} border-t border-gray-200 ${darkMode ? 'border-gray-700' : ''} shadow-lg py-2 z-40`}>
+        <div className="flex justify-around items-center h-full max-w-lg mx-auto">
+          <button
+            onClick={() => { setViewMode('recipeOfTheDay'); fetchDailyRecipe(); }}
+            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'recipeOfTheDay' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+            aria-label={t.recipeOfTheDay}
+          >
+            <Sun className="w-6 h-6 mb-1" />
+            <span className="hidden sm:inline">{t.recipeOfTheDay.split(' ')[0]}</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('favorites')}
+            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'favorites' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+            aria-label={t.favorites}
+          >
+            <Heart className="w-6 h-6 mb-1" />
+            <span className="hidden sm:inline">{t.favorites}</span>
+          </button>
+
+          {/* Central Add Button */}
+          <motion.button
+            whileTap={{ scale: 1.2 }}
+            onClick={() => setShowAddRecipeModal(true)}
+            className="flex flex-col items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-lg -mt-8 border-4 border-white dark:border-gray-800 transition-all duration-300 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50"
+            aria-label={t.addRecipeTitle}
+          >
+            <Plus className="w-8 h-8" />
+            <span className="sr-only">{t.addRecipeTitle}</span>
+          </motion.button>
+
+          <button
+            onClick={() => setViewMode('history')}
+            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'history' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+            aria-label={t.history}
+          >
+            <History className="w-6 h-6 mb-1" />
+            <span className="hidden sm:inline">{t.history}</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('settings')}
+            className={`flex flex-col items-center p-2 rounded-lg text-sm font-medium transition-all duration-300 ${viewMode === 'settings' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'} hover:text-indigo-600 dark:hover:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+            aria-label={t.settings}
+          >
+            <Settings className="w-6 h-6 mb-1" />
+            <span className="hidden sm:inline">{t.settings}</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Custom Modal */}
       <CustomModal
@@ -2804,6 +3027,101 @@ export default function App() {
       {isFirstTimeUser && (
         <OnboardingModal onClose={handleOnboardingComplete} currentLanguage={language} />
       )}
+
+      {/* Add Recipe Modal */}
+      <AnimatePresence>
+        {showAddRecipeModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+            aria-modal="true"
+            role="dialog"
+          >
+            <motion.div
+              initial={{ y: "100vh", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100vh", opacity: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 100 }}
+              className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-md w-full glassmorphism relative`}
+            >
+              <button
+                onClick={() => setShowAddRecipeModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                aria-label="Fermer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <h2 className="text-2xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">
+                {t.addRecipeTitle}
+              </h2>
+
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.1
+                    }
+                  }
+                }}
+              >
+                {[
+                  { label: t.recipeName, type: 'text', value: newRecipeName, onChange: setNewRecipeName, placeholder: t.recipeName },
+                  { label: t.recipeIngredients, type: 'textarea', value: newRecipeIngredients, onChange: setNewRecipeIngredients, placeholder: t.recipeIngredients },
+                  { label: t.recipeInstructions, type: 'textarea', value: newRecipeInstructions, onChange: setNewRecipeInstructions, placeholder: t.recipeInstructions },
+                ].map((field, index) => (
+                  <motion.div
+                    key={index}
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0 }
+                    }}
+                    className="mb-4"
+                  >
+                    <label htmlFor={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`} className="block text-md font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                      {field.label}
+                    </label>
+                    {field.type === 'text' ? (
+                      <input
+                        type="text"
+                        id={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        placeholder={field.placeholder}
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={field.label}
+                      />
+                    ) : (
+                      <textarea
+                        id={`add-recipe-${field.label.toLowerCase().replace(/\s/g, '-')}`}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        placeholder={field.placeholder}
+                        rows="4"
+                        className={`w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${darkMode ? 'bg-gray-900 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white text-gray-800'} transition-all duration-200`}
+                        aria-label={field.label}
+                      ></textarea>
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <button
+                onClick={handleAddCustomRecipe}
+                className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-indigo-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={!!loadingMessage || !newRecipeName.trim() || !newRecipeIngredients.trim() || !newRecipeInstructions.trim()}
+                aria-label={loadingMessage ? loadingMessage : t.addRecipe}
+              >
+                {loadingMessage && <LoadingSpinner />}
+                {loadingMessage ? loadingMessage : t.addRecipe}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
