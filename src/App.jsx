@@ -16,17 +16,18 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, co
 
 // Global variables provided by the Canvas environment
 // These variables are MANDATORY for Firebase integration
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+// Note: For Netlify, these should be prefixed with VITE_
+const appId = import.meta.env.VITE_APP_ID || 'default-app-id';
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
 // Firebase configuration.
-// This will now ONLY use __firebase_config provided by the Canvas environment.
+// This will now ONLY use VITE_FIREBASE_CONFIG provided by the Netlify environment.
 let parsedFirebaseConfig = {};
-if (typeof __firebase_config !== 'undefined') {
+if (import.meta.env.VITE_FIREBASE_CONFIG) {
   try {
-    parsedFirebaseConfig = JSON.parse(__firebase_config);
+    parsedFirebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG);
   } catch (e) {
-    console.error("Failed to parse __firebase_config:", e);
+    console.error("Failed to parse VITE_FIREBASE_CONFIG:", e);
   }
 }
 
@@ -52,7 +53,7 @@ try {
     db = getFirestore(app);
     auth = getAuth(app);
   } else {
-    // This warning will appear if __firebase_config is missing or malformed
+    // This warning will appear if VITE_FIREBASE_CONFIG is missing or malformed
     console.warn("Firebase configuration is missing or incomplete. Firebase will not be initialized. Features relying on database (favorites, history, daily recipe, streak) will be limited.");
   }
 } catch (error) {
@@ -69,10 +70,56 @@ const blobToBase64 = (blob) => {
   });
 };
 
+// Fonction utilitaire pour redimensionner une image avant l'upload
+const resizeImage = (file, maxWidth, maxHeight, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Canvas to Blob failed."));
+          }
+        }, file.type, quality);
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+
 // Configuration des traductions
 const translations = {
   fr: {
-    appTitle: "Mon Frigo Malin �🥕",
+    appTitle: "Mon Frigo Malin 🥦🥕",
     uploadSectionTitle: "Ajouter une photo de votre frigo",
     analyzeButton: "Analyser mon frigo avec l'IA",
     analyzing: "Analyse en cours...",
@@ -419,19 +466,200 @@ const translations = {
     errorGeneric: "An unexpected error occurred. Please check your internet connection or try again later. If the problem persists, contact support.",
     analyzingImage: "Analyzing image...",
     detectingIngredients: "Detecting ingredients...",
-    generatingRecipeDetailed: "Generating recipe (this may take a few moments)...",
-    adaptingRecipeDetailed: "Adapting recipe...",
-    substitutingIngredientDetailed: "Substituting ingredient...",
-    scalingRecipeDetailed: "Scaling quantities...",
-    gettingTipDetailed: "Getting cooking tip...",
-    generatingMealPrepGuideDetailed: "Generating meal prep guide...",
-    gettingFoodPairingsDetailed: "Getting food pairing suggestions...",
-    gettingIngredientInfoDetailed: "Getting ingredient information...",
-    optimizingRecipeDetailed: "Optimizing recipe for health...",
-    uploadingMealPhotoDetailed: "Uploading meal photo...",
-    userIdDisplay: "Your User ID: ",
-    firebaseNotInitialized: "Firebase is not initialized. Some features may be limited. Please check your configuration.",
-    currentRecipe: "My Current Recipe",
+    generatingRecipeDetailed: "Génération de la recette (cela peut prendre quelques instants)...",
+    adaptingRecipeDetailed: "Adaptation de la recette...",
+    substitutingIngredientDetailed: "Substitution de l'ingrédient...",
+    scalingRecipeDetailed: "Adaptation des quantités...",
+    gettingTipDetailed: "Obtention du conseil de cuisine...",
+    generatingMealPrepGuideDetailed: "Génération du guide de préparation...",
+    gettingFoodPairingsDetailed: "Obtention des suggestions d'accords...",
+    gettingIngredientInfoDetailed: "Obtention des informations sur l'ingrédient...",
+    optimizingRecipeDetailed: "Optimisation de la recette pour la santé...",
+    uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
+    userIdDisplay: "Votre ID utilisateur : ",
+    firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées. Veuillez vérifier votre configuration.",
+    currentRecipe: "Ma Recette Actuelle",
+  },
+  en: {
+    appTitle: "My Smart Fridge 🥦🥕",
+    uploadSectionTitle: "Add a photo of your fridge",
+    analyzeButton: "Analyze my fridge with AI",
+    analyzing: "Analyzing...",
+    errorImageRead: "Error reading file.",
+    errorNoImage: "Please select a fridge image first.",
+    ingredientsDetected: "Detected Ingredients:",
+    placeholderIngredients: "Ingredient name",
+    addIngredient: "Add",
+    addExpiryDate: "Expiry Date (MM/DD/YYYY)",
+    addQuantity: "Quantity",
+    addUnit: "Unit",
+    generateRecipeButton: "Generate Recipe",
+    generatingRecipe: "Generating recipe...",
+    errorDetectIngredients: "Could not detect ingredients. Please try again.",
+    errorGenerateRecipe: "Could not generate recipe. Please try again.",
+    errorRecipeGeneration: "Error generating recipe: ",
+    errorImageAnalysis: "Error analyzing image: ",
+    recipeTitle: "Your Smart Recipe!",
+    magicHappening: "Magic in progress... Recipe being created!",
+    newAnalysis: "New analysis",
+    addToFavorites: "Add to Favorites",
+    removeFromFavorites: "Remove From Favorites",
+    favorites: "My Favorites",
+    noFavorites: "You don't have any favorite recipes yet. Start generating some!",
+    recipeOfTheDay: "Recipe of the Day",
+    generatingDailyRecipe: "Generating daily recipe...",
+    noDailyRecipe: "No daily recipe available yet. Check back tomorrow or generate your own!",
+    settings: "Settings",
+    languageSelection: "Language selection:",
+    languageFrench: "French",
+    languageEnglish: "English",
+    languageGerman: "German",
+    languageSpanish: "Spanish",
+    languageItalian: "Italiano",
+    detectedSuccess: "Ingredients detected successfully!",
+    confirmDelete: "Confirm Deletion",
+    confirmDeleteRecipe: "Are you sure you want to delete this recipe from your favorites?",
+    cancel: "Cancel",
+    delete: "Delete",
+    ok: "OK",
+    recipeDeleted: "Recipe deleted from your favorites.",
+    noIngredientsForRecipe: "Please detect ingredients first or enter them manually.",
+    adaptRecipe: "✨ Adapt Recipe",
+    substituteIngredient: "✨ Substitute Ingredient",
+    enterAdaptRequest: "Ex: 'make vegetarian', 'less sugar', 'quicker'",
+    enterIngredientToSubstitute: "Ingredient to substitute (ex: 'chicken')",
+    enterSubstituteWith: "Substitute with (optional, ex: 'tofu')",
+    adapt: "Adapt",
+    substitute: "Substitute",
+    adaptingRecipe: "Adapting recipe...",
+    substitutingIngredient: "Substituting ingredient...",
+    errorAdaptRecipe: "Error adapting recipe: ",
+    errorSubstituteIngredient: "Error substituting ingredient: ",
+    noRecipeToAdapt: "Please generate a recipe to adapt first.",
+    noRecipeToSubstitute: "Please generate a recipe for substitution first.",
+    scaleRecipe: "✨ Scale Recipe",
+    enterServings: "Number of servings (ex: 2, 6)",
+    scale: "Scale",
+    scalingRecipe: "Scaling recipe...",
+    askCookingTip: "✨ Ask for Cooking Tip",
+    enterCookingQuestion: "Your question (ex: 'How to properly sauté onions?')",
+    ask: "Ask",
+    gettingTip: "Getting tip...",
+    noRecipeForTip: "Please generate a recipe to get a tip.",
+    cookingTip: "Cooking Tip:",
+    mealPrepGuide: "✨ Meal Prep Guide",
+    generatingMealPrepGuide: "Generating guide...",
+    noRecipeForMealPrep: "Please generate a recipe for the meal prep guide.",
+    foodPairingSuggestions: "✨ Food Pairing Suggestions",
+    enterFoodForPairing: "Ingredient (ex: 'tomato')",
+    gettingFoodPairings: "Getting suggestions...",
+    noFoodForPairing: "Please enter an ingredient for pairing suggestions.",
+    foodPairingResultTitle: "Pairing Suggestions for",
+    getIngredientInfo: "✨ Get Ingredient Info",
+    enterIngredientName: "Ingredient Name (ex: 'broccoli')",
+    gettingIngredientInfo: "Getting info...",
+    ingredientInfo: "Ingredient Information",
+    noIngredientForInfo: "Please enter an ingredient to get information.",
+    optimizeRecipeHealth: "✨ Optimize Recipe Health",
+    enterHealthGoals: "Ex: 'less fat', 'more fiber', 'vegetarian'",
+    optimize: "Optimize",
+    optimizingRecipe: "Optimizing recipe...",
+    errorOptimizeRecipe: "Error optimizing recipe: ",
+    noRecipeToOptimize: "Please generate a recipe to optimize first.",
+    clearAllData: "Clear All Data",
+    confirmClearAllData: "Are you sure you want to clear all app data (recipes, favorites, etc.)? This action is irreversible.",
+    dataCleared: "All data cleared.",
+    myCookingStreak: "My Cooking Streak",
+    uploadMealPhotoButton: "I cooked this meal!",
+    uploadingMealPhoto: "Uploading meal photo...",
+    streakIncreased: "Great! Your cooking streak increased to {streak} days!",
+    streakReset: "Too bad! Your streak has been reset to 1 day.",
+    alreadyLoggedToday: "You have already logged a meal today.",
+    darkModeOn: "On",
+    darkModeOff: "Off",
+    viewRecipe: "View Recipe",
+    favoriteRecipeTitle: "Favorite Recipe",
+    dietaryPreferences: "Dietary Preferences:",
+    dietaryNone: "Default",
+    dietaryVegetarian: "Vegetarian",
+    dietaryVegan: "Vegan",
+    dietaryGlutenFree: "Gluten-Free",
+    dietaryHalal: "Halal",
+    dietaryKosher: "Kosher",
+    copyToClipboard: "Copy Recipe",
+    copied: "Copied!",
+    unitNone: "None",
+    unitUnits: "units",
+    unitGrams: "grams",
+    unitKilograms: "kilograms",
+    unitMilliliters: "milliliters",
+    unitLiters: "liters",
+    unitCups: "cups",
+    unitSpoons: "spoons",
+    cuisineType: "Cuisine Type:",
+    cuisineNone: "None",
+    cuisineFrench: "French",
+    cuisineItalian: "Italian",
+    cuisineAsian: "Asian",
+    cuisineMexican: "Mexican",
+    cuisineIndian: "Indian",
+    cuisineMediterranean: "Mediterranean",
+    cuisineAmerican: "American",
+    cuisineOther: "Other",
+    prepTime: "Preparation Time:",
+    timeNone: "None",
+    timeQuick: "Less than 30 min",
+    timeMedium: "30-60 min",
+    timeLong: "More than 60 min",
+    difficulty: "Difficulty:",
+    difficultyNone: "None",
+    difficultyEasy: "Easy",
+    difficultyMedium: "Medium",
+    difficultyHard: "Hard",
+    dishType: "Dish Type:",
+    dishTypeNone: "None",
+    dishTypeMain: "Main Course",
+    dishTypeDessert: "Dessert",
+    dishTypeAppetizer: "Appetizer",
+    dishTypeSide: "Side Dish",
+    dishTypeBreakfast: "Breakfast",
+    dishTypeSoup: "Soup",
+    dishTypeSalad: "Salad",
+    dishTypeDrink: "Drink",
+    optimizingImage: "Optimisation de l'image...",
+    history: "My History",
+    noHistory: "No recipes have been generated yet. Start creating one!",
+    searchRecipes: "Search recipes...",
+    filterByCuisine: "Filter by cuisine:",
+    filterByTime: "Filter by time:",
+    filterByDifficulty: "Filter by difficulty:",
+    filterByDietary: "Filter by dietary:",
+    filterByDishType: "Filter by dish type:",
+    clearFilters: "Clear filters",
+    onboardingTitle: "Welcome to My Smart Fridge!",
+    onboardingStep1Title: "1. Analyze your fridge",
+    onboardingStep1Desc: "Take a photo of your fridge's interior. Our AI will detect available ingredients.",
+    onboardingStep2Title: "2. Generate recipes",
+    onboardingStep2Desc: "Based on your ingredients, we'll suggest creative and personalized recipes.",
+    onboardingStep3Title: "3. Explore and adapt",
+    onboardingStep3Desc: "Save your favorite recipes, check your history, and adapt recipes with our advanced AI tools.",
+    onboardingButton: "Let's Go!",
+    errorGeneric: "An unexpected error occurred. Please check your internet connection or try again later. If the problem persists, contact support.",
+    analyzingImage: "Analyzing image...",
+    detectingIngredients: "Detecting ingredients...",
+    generatingRecipeDetailed: "Génération de la recette (cela peut prendre quelques instants)...",
+    adaptingRecipeDetailed: "Adaptation de la recette...",
+    substitutingIngredientDetailed: "Substitution de l'ingrédient...",
+    scalingRecipeDetailed: "Adaptation des quantités...",
+    gettingTipDetailed: "Obtention du conseil de cuisine...",
+    generatingMealPrepGuideDetailed: "Génération du guide de préparation...",
+    gettingFoodPairingsDetailed: "Obtention des suggestions d'accords...",
+    gettingIngredientInfoDetailed: "Obtention des informations sur l'ingrédient...",
+    optimizingRecipeDetailed: "Optimisation de la recette pour la santé...",
+    uploadingMealPhotoDetailed: "Téléchargement de la photo du plat...",
+    userIdDisplay: "Votre ID utilisateur : ",
+    firebaseNotInitialized: "Firebase n'est pas initialisé. Certaines fonctionnalités peuvent être limitées. Veuillez vérifier votre configuration.",
+    currentRecipe: "Ma Recette Actuelle",
   }
 };
 
@@ -894,22 +1122,25 @@ export default function App() {
 
   // --- Image handling and ingredient detection ---
 
-  const handleImageUpload = useCallback((event) => {
+  const handleImageUpload = useCallback(async (event) => {
     clearError();
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.onerror = () => {
-        showModal(t.errorImageRead, closeModal, closeModal);
-      };
-      reader.readAsDataURL(file);
+      setLoadingMessage(t.optimizingImage); // Nouveau message de chargement
+      try {
+        const resizedBlob = await resizeImage(file, 1024, 1024, 0.8); // Redimensionne à 1024px max, qualité 80%
+        const base64 = await blobToBase64(resizedBlob);
+        setSelectedImage(`data:${resizedBlob.type};base64,${base64}`);
+        setLoadingMessage(null);
+      } catch (error) {
+        handleError(t.errorImageRead, error);
+        setSelectedImage(null);
+        setLoadingMessage(null);
+      }
     } else {
       setSelectedImage(null);
     }
-  }, [clearError, showModal, closeModal, t.errorImageRead]);
+  }, [clearError, showModal, closeModal, t.errorImageRead, t.optimizingImage, handleError]);
 
   const handleAnalyzeImage = useCallback(async () => {
     clearError();
@@ -2336,7 +2567,7 @@ export default function App() {
                         </motion.button>
                         {cookingTipResult && (
                           <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-blue-50 text-blue-800'} border border-blue-200 dark:border-blue-700 animate-fadeIn`}>
-                            <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.cookingTip}</h4>
+                            <h4 className="font-bold mb-2 flex items-center gap-2"><Info className="w-5 h-5" aria-hidden="true" />{t.cookingTip} :</h4>
                             <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: cookingTipResult }}></div>
                           </div>
                         )}
