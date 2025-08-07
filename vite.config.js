@@ -8,4 +8,8 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
+  // Cette section est cruciale pour résoudre l'erreur
+  optimizeDeps: {
+    exclude: ['@google/generative-ai'],
+  },
 })
