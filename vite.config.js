@@ -9,5 +9,8 @@ export default defineConfig({
     // 'esnext' cible la dernière version supportée par les navigateurs modernes
     // Cela résoudra l'avertissement "import.meta"
     target: 'esnext',
+    rollupOptions: {
+      external: ['@google/generative-ai']
+    }
   },
 })
