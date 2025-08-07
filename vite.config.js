@@ -7,10 +7,5 @@ export default defineConfig({
   plugins: [react(), nodePolyfills()],
   build: {
     target: 'esnext',
-    rollupOptions: {
-      external: [
-        '@google/generative-ai',
-      ]
-    },
   },
 })
